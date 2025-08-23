@@ -1,0 +1,462 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load crispy_forms_tags %}
+
+{% block title %}Join ClipClap - Sign Up{% endblock %}
+
+{% block content %}
+<div class="signup-container">
+    <!-- Left Decorative Panel -->
+    <div class="signup-decoration">
+        <div class="decoration-content">
+            <div class="logo-container animate__animated animate__fadeInDown">
+                <i class="fas fa-play-circle"></i>
+                <span>ClipClap</span>
+            </div>
+            <div class="features-list">
+                <div class="feature-item animate__animated animate__fadeInLeft">
+                    <i class="fas fa-compass"></i>
+                    <h4>Discover</h4>
+                    <p>Find content that matches your interests</p>
+                </div>
+                <div class="feature-item animate__animated animate__fadeInLeft animate__delay-1s">
+                    <i class="fas fa-users"></i>
+                    <h4>Connect</h4>
+                    <p>Join a community of passionate creators</p>
+                </div>
+                <div class="feature-item animate__animated animate__fadeInLeft animate__delay-2s">
+                    <i class="fas fa-chart-line"></i>
+                    <h4>Grow</h4>
+                    <p>Build your audience and share your story</p>
+                </div>
+            </div>
+            <div class="decoration-footer animate__animated animate__fadeInUp">
+                <p>Already a member? <a href="{% url 'users:login' %}">Sign In</a></p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Right Form Panel -->
+    <div class="signup-form">
+        <div class="form-container">
+            <div class="form-header">
+                <h2>Create Your Account</h2>
+                <p>Join the ClipClap community today</p>
+            </div>
+
+            <form method="post" enctype="multipart/form-data" novalidate>
+                {% csrf_token %}
+                
+                <div class="form-grid">
+                    <div class="form-group">
+                        {{ form.username|as_crispy_field }}
+                        <i class="fas fa-user input-icon"></i>
+                    </div>
+                    <div class="form-group">
+                        {{ form.email|as_crispy_field }}
+                        <i class="fas fa-envelope input-icon"></i>
+                    </div>
+                    <div class="form-group">
+                        {{ form.first_name|as_crispy_field }}
+                        <i class="fas fa-signature input-icon"></i>
+                    </div>
+                    <div class="form-group">
+                        {{ form.last_name|as_crispy_field }}
+                        <i class="fas fa-signature input-icon"></i>
+                    </div>
+                    <div class="form-group">
+                        {{ form.password1|as_crispy_field }}
+                        <i class="fas fa-lock input-icon"></i>
+                    </div>
+                    <div class="form-group">
+                        {{ form.password2|as_crispy_field }}
+                        <i class="fas fa-lock input-icon"></i>
+                    </div>
+                </div>
+
+                <div class="account-type">
+                    <h5>Account Type</h5>
+                    <div class="type-selector">
+                        <input type="radio" name="user_type" id="consumer" value="consumer" checked>
+                        <label for="consumer" class="type-card">
+                            <i class="fas fa-user"></i>
+                            <h6>Viewer</h6>
+                            <p>Watch and interact with content</p>
+                            <div class="checkmark"><i class="fas fa-check"></i></div>
+                        </label>
+                        
+                        <input type="radio" name="user_type" id="creator" value="creator">
+                        <label for="creator" class="type-card">
+                            <i class="fas fa-video"></i>
+                            <h6>Creator</h6>
+                            <p>Upload and share your videos</p>
+                            <div class="checkmark"><i class="fas fa-check"></i></div>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="profile-picture">
+                    <h5>Profile Picture</h5>
+                    <div class="picture-upload">
+                        <div class="preview-container">
+                            <img id="profile-pic-preview" src="{% static 'images/default-avatar.jpg' %}" 
+                                 alt="Profile preview">
+                            <label for="profile_pic" class="upload-label">
+                                <i class="fas fa-camera"></i>
+                            </label>
+                            <input type="file" id="profile_pic" name="profile_pic" accept="image/*">
+                        </div>
+                        <div class="upload-info">
+                            <p>Upload a clear photo of yourself</p>
+                            <small>JPG or PNG, max 2MB</small>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="terms-agreement">
+                    <input type="checkbox" id="terms" required>
+                    <label for="terms">
+                        I agree to the <a href="#">Terms of Service</a> and <a href="#">Privacy Policy</a>
+                    </label>
+                </div>
+
+                <button type="submit" class="submit-btn">
+                    <i class="fas fa-rocket"></i> Get Started
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<style>
+    /* Main Container */
+    .signup-container {
+        display: flex;
+        min-height: 100vh;
+    }
+
+    /* Left Decoration Panel */
+    .signup-decoration {
+        flex: 1;
+        background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+        color: white;
+        padding: 3rem;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+    }
+
+    .logo-container {
+        display: flex;
+        align-items: center;
+        margin-bottom: 3rem;
+        font-size: 2rem;
+        font-weight: bold;
+    }
+
+    .logo-container i {
+        margin-right: 1rem;
+        font-size: 2.5rem;
+    }
+
+    .features-list {
+        margin: 3rem 0;
+    }
+
+    .feature-item {
+        margin-bottom: 2.5rem;
+        padding: 1.5rem;
+        border-radius: 10px;
+        background: rgba(255, 255, 255, 0.1);
+        backdrop-filter: blur(5px);
+        transition: transform 0.3s ease;
+    }
+
+    .feature-item:hover {
+        transform: translateX(10px);
+    }
+
+    .feature-item i {
+        font-size: 1.5rem;
+        margin-bottom: 1rem;
+        color: #f0abfc;
+    }
+
+    .feature-item h4 {
+        margin-bottom: 0.5rem;
+    }
+
+    .decoration-footer {
+        margin-top: auto;
+        text-align: center;
+    }
+
+    .decoration-footer a {
+        color: white;
+        font-weight: bold;
+        text-decoration: underline;
+    }
+
+    /* Right Form Panel */
+    .signup-form {
+        flex: 1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 2rem;
+        background: #f8f9fa;
+    }
+
+    .form-container {
+        max-width: 600px;
+        width: 100%;
+        background: white;
+        padding: 3rem;
+        border-radius: 15px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    }
+
+    .form-header {
+        text-align: center;
+        margin-bottom: 2rem;
+    }
+
+    .form-header h2 {
+        font-weight: bold;
+        margin-bottom: 0.5rem;
+    }
+
+    .form-header p {
+        color: #6c757d;
+    }
+
+    .form-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1.5rem;
+        margin-bottom: 2rem;
+    }
+
+    .form-group {
+        position: relative;
+    }
+
+    .input-icon {
+        position: absolute;
+        right: 15px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #adb5bd;
+    }
+
+    /* Account Type Selector */
+    .account-type {
+        margin: 2rem 0;
+    }
+
+    .account-type h5 {
+        margin-bottom: 1rem;
+        font-weight: bold;
+    }
+
+    .type-selector {
+        display: flex;
+        gap: 1rem;
+    }
+
+    .type-selector input[type="radio"] {
+        display: none;
+    }
+
+    .type-card {
+        flex: 1;
+        padding: 1.5rem;
+        border: 2px solid #e9ecef;
+        border-radius: 10px;
+        text-align: center;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .type-card i {
+        font-size: 2rem;
+        color: #6366f1;
+        margin-bottom: 1rem;
+    }
+
+    .type-card h6 {
+        font-weight: bold;
+        margin-bottom: 0.5rem;
+    }
+
+    .type-card p {
+        font-size: 0.9rem;
+        color: #6c757d;
+    }
+
+    .checkmark {
+        position: absolute;
+        top: -10px;
+        right: -10px;
+        width: 30px;
+        height: 30px;
+        background: #6366f1;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        opacity: 0;
+        transform: scale(0);
+        transition: all 0.3s ease;
+    }
+
+    .type-selector input[type="radio"]:checked + .type-card {
+        border-color: #6366f1;
+        background: rgba(99, 102, 241, 0.05);
+    }
+
+    .type-selector input[type="radio"]:checked + .type-card .checkmark {
+        opacity: 1;
+        transform: scale(1);
+    }
+
+    /* Profile Picture Upload */
+    .profile-picture {
+        margin: 2rem 0;
+    }
+
+    .profile-picture h5 {
+        margin-bottom: 1rem;
+        font-weight: bold;
+    }
+
+    .picture-upload {
+        display: flex;
+        align-items: center;
+        gap: 1.5rem;
+    }
+
+    .preview-container {
+        position: relative;
+        width: 100px;
+        height: 100px;
+    }
+
+    #profile-pic-preview {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        border-radius: 50%;
+        border: 3px solid #e9ecef;
+    }
+
+    .upload-label {
+        position: absolute;
+        bottom: 0;
+        right: 0;
+        width: 35px;
+        height: 35px;
+        background: #6366f1;
+        color: white;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+    }
+
+    #profile_pic {
+        display: none;
+    }
+
+    .upload-info p {
+        margin-bottom: 0.25rem;
+        font-weight: 500;
+    }
+
+    /* Terms Agreement */
+    .terms-agreement {
+        margin: 2rem 0;
+        display: flex;
+        align-items: center;
+    }
+
+    .terms-agreement input {
+        margin-right: 0.75rem;
+    }
+
+    .terms-agreement a {
+        color: #6366f1;
+        text-decoration: none;
+        font-weight: 500;
+    }
+
+    /* Submit Button */
+    .submit-btn {
+        width: 100%;
+        padding: 1rem;
+        background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+        color: white;
+        border: none;
+        border-radius: 10px;
+        font-weight: bold;
+        font-size: 1.1rem;
+        cursor: pointer;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .submit-btn i {
+        margin-right: 0.75rem;
+    }
+
+    .submit-btn:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 5px 15px rgba(99, 102, 241, 0.4);
+    }
+
+    /* Responsive Design */
+    @media (max-width: 992px) {
+        .signup-container {
+            flex-direction: column;
+        }
+        
+        .signup-decoration {
+            padding: 2rem;
+        }
+        
+        .form-grid {
+            grid-template-columns: 1fr;
+        }
+        
+        .type-selector {
+            flex-direction: column;
+        }
+    }
+</style>
+
+<script>
+    // Profile picture preview
+    document.getElementById('profile_pic').addEventListener('change', function(e) {
+        const [file] = e.target.files;
+        if (file) {
+            document.getElementById('profile-pic-preview').src = URL.createObjectURL(file);
+        }
+    });
+
+    // Add animation class when elements come into view
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.classList.add('animate__animated', 'animate__fadeInUp');
+            }
+        });
+    }, { threshold: 0.1 });
+
+    document.querySelectorAll('.form-group, .account-type, .profile-picture').forEach(el => {
+        observer.observe(el);
+    });
+</script>
+{% endblock %}

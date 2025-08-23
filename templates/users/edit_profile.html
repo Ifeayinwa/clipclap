@@ -1,0 +1,364 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+{% load static %}
+
+{% block title %}Edit Profile | ClipClap{% endblock %}
+
+{% block content %}
+<div class="edit-profile-container">
+    <div class="edit-profile-card">
+        <div class="card-header">
+            <h2><i class="fas fa-user-edit me-2"></i> Edit Profile</h2>
+            <p class="mb-0">Update your personal information and profile settings</p>
+        </div>
+        
+        <div class="card-body">
+            <form method="post" enctype="multipart/form-data" novalidate>
+                {% csrf_token %}
+                
+                <div class="profile-edit-grid">
+                    <!-- Profile Picture Section -->
+                <div class="profile-picture-section">
+                        <div class="avatar-upload">
+                            <div class="avatar-preview-container">
+                                <img id="profile-pic-preview" 
+                                     src="{% if user.profile_pic %}{{ user.profile_pic.url }}{% else %}{% static 'images/default_profile.png' %}{% endif %}" 
+                                     class="profile-image"
+                                     alt="Profile picture">
+                                <div class="avatar-overlay">
+                                    <label for="id_profile_pic" class="btn btn-primary btn-sm avatar-change-btn">
+                                        <i class="fas fa-camera"></i> Change
+                                    </label>
+                                    {% if user.profile_pic %}
+                                    <button type="button" class="btn btn-danger btn-sm avatar-remove-btn" id="remove-profile-pic">
+                                        <i class="fas fa-trash"></i> Remove
+                                    </button>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            {{ form.profile_pic }}
+                            <small class="text-muted">Recommended: Square image, 500x500px</small>
+                        </div>
+                        <div class="account-type">
+                            <h5>Account Type</h5>
+                            <div class="account-type-badge">
+                                {{ user.get_user_type_display }}
+                                {% if user.user_type == 'creator' %}
+                                <span class="badge creator-badge">
+                                    <i class="fas fa-video"></i> Creator
+                                </span>
+                                {% elif user.user_type == 'admin' %}
+                                <span class="badge admin-badge">
+                                    <i class="fas fa-shield-alt"></i> Admin
+                                </span>
+                                {% endif %}
+                            </div>
+                            {% if user.user_type == 'consumer' %}
+                            <div class="upgrade-prompt">
+                                <p>Want to become a creator?</p>
+                                <a href="#" class="btn btn-sm btn-outline-primary">Upgrade Account</a>
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <!-- Form Fields Section -->
+                    <div class="form-fields-section">
+                        <div class="form-section">
+                            <h5><i class="fas fa-user-circle me-2"></i> Basic Information</h5>
+                            <div class="form-grid">
+                                <div class="form-group">
+                                    {{ form.username|as_crispy_field }}
+                                    <i class="fas fa-at input-icon"></i>
+                                </div>
+                                <div class="form-group">
+                                    {{ form.email|as_crispy_field }}
+                                    <i class="fas fa-envelope input-icon"></i>
+                                </div>
+                                <div class="form-group">
+                                    {{ form.first_name|as_crispy_field }}
+                                    <i class="fas fa-signature input-icon"></i>
+                                </div>
+                                <div class="form-group">
+                                    {{ form.last_name|as_crispy_field }}
+                                    <i class="fas fa-signature input-icon"></i>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="form-section">
+                            <h5><i class="fas fa-info-circle me-2"></i> Profile Details</h5>
+                            <div class="form-group">
+                                {{ form.bio|as_crispy_field }}
+                                <small class="text-muted">Tell people about yourself (max 150 characters)</small>
+                            </div>
+                            <div class="form-group">
+                                {{ form.website|as_crispy_field }}
+                                <i class="fas fa-link input-icon"></i>
+                                <small class="text-muted">Include https:// for external links</small>
+                            </div>
+                        </div>
+                        
+                        <div class="form-actions">
+                            <a href="{% url 'users:profile' request.user.username %}" class="btn btn-outline-secondary">
+                                <i class="fas fa-times"></i> Cancel
+                            </a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save"></i> Save Changes
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<style>
+    /* Main Container */
+    .edit-profile-container {
+        max-width: 1000px;
+        margin: 2rem auto;
+        padding: 0 1rem;
+    }
+    
+    /* Card Styling */
+    .edit-profile-card {
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
+        overflow: hidden;
+    }
+    
+    .card-header {
+        background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+        color: white;
+        padding: 2rem;
+    }
+    
+    .card-header h2 {
+        font-weight: 700;
+        margin-bottom: 0.5rem;
+    }
+    
+    .card-header p {
+        opacity: 0.9;
+    }
+    
+    .card-body {
+        padding: 2rem;
+    }
+    
+    /* Profile Edit Grid */
+    .profile-edit-grid {
+        display: grid;
+        grid-template-columns: 280px 1fr;
+        gap: 2rem;
+    }
+    
+    @media (max-width: 768px) {
+        .profile-edit-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+    
+    /* Profile Picture Section */
+    .profile-picture-section {
+        position: relative;
+    }
+    
+    .avatar-upload {
+        margin-bottom: 2rem;
+    }
+    
+    .avatar-preview {
+        width: 200px;
+        height: 200px;
+        margin: 0 auto 1rem;
+        position: relative;
+        border-radius: 50%;
+        overflow: hidden;
+        border: 5px solid white;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    }
+    
+    .profile-image {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+    
+    .avatar-actions {
+        display: flex;
+        gap: 0.5rem;
+        justify-content: center;
+        margin-top: 1rem;
+    }
+    
+    .avatar-upload-btn, .avatar-remove-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    
+    #id_profile_pic {
+        display: none;
+    }
+    
+    /* Account Type Styling */
+    .account-type {
+        padding: 1.5rem;
+        background: #f9fafb;
+        border-radius: 10px;
+    }
+    
+    .account-type h5 {
+        margin-bottom: 1rem;
+        font-weight: 600;
+    }
+    
+    .account-type-badge {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        margin-bottom: 1rem;
+        font-weight: 500;
+    }
+    
+    .badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.35rem 0.75rem;
+        border-radius: 20px;
+        font-size: 0.85rem;
+    }
+    
+    .creator-badge {
+        background: rgba(99, 102, 241, 0.1);
+        color: #6366f1;
+    }
+    
+    .admin-badge {
+        background: rgba(239, 68, 68, 0.1);
+        color: #ef4444;
+    }
+    
+    .upgrade-prompt {
+        margin-top: 1rem;
+        padding-top: 1rem;
+        border-top: 1px solid #e5e7eb;
+    }
+    
+    .upgrade-prompt p {
+        margin-bottom: 0.5rem;
+        font-size: 0.9rem;
+    }
+    
+    /* Form Fields Section */
+    .form-section {
+        margin-bottom: 2rem;
+    }
+    
+    .form-section h5 {
+        margin-bottom: 1rem;
+        font-weight: 600;
+        color: #4b5563;
+        display: flex;
+        align-items: center;
+    }
+    
+    .form-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1.5rem;
+    }
+    
+    @media (max-width: 576px) {
+        .form-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+    
+    .form-group {
+        position: relative;
+    }
+    
+    .input-icon {
+        position: absolute;
+        right: 12px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #9ca3af;
+    }
+    
+    /* Form Actions */
+    .form-actions {
+        display: flex;
+        justify-content: flex-end;
+        gap: 1rem;
+        margin-top: 2rem;
+        padding-top: 2rem;
+        border-top: 1px solid #e5e7eb;
+    }
+    
+    /* Crispy Forms Overrides */
+    .form-group label {
+        font-weight: 500;
+        color: #4b5563;
+    }
+    
+    .form-control {
+        padding: 0.75rem 1rem;
+        border-radius: 8px;
+        border: 1px solid #e5e7eb;
+    }
+    
+    .form-control:focus {
+        border-color: #6366f1;
+        box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
+    }
+</style>
+
+<script>
+    // Profile picture preview
+    document.getElementById('id_profile_pic').addEventListener('change', function(e) {
+        const [file] = e.target.files;
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                document.getElementById('profile-pic-preview').src = e.target.result;
+                // Show remove button if it exists
+                const removeBtn = document.getElementById('remove-profile-pic');
+                if (removeBtn) removeBtn.style.display = 'inline-block';
+            }
+            reader.readAsDataURL(file);
+        }
+    });
+    
+    // Remove profile picture
+    document.getElementById('remove-profile-pic')?.addEventListener('click', function() {
+        document.getElementById('id_profile_pic').value = '';
+        document.getElementById('profile-pic-preview').src = "{% static 'images/default_profile.png' %}";
+        this.style.display = 'none';
+    });
+    
+    // Character counter for bio
+    const bioField = document.getElementById('id_bio');
+    if (bioField) {
+        const charCounter = document.createElement('small');
+        charCounter.className = 'text-muted float-end';
+        charCounter.textContent = `${bioField.value.length}/150`;
+        bioField.parentNode.appendChild(charCounter);
+        
+        bioField.addEventListener('input', function() {
+            charCounter.textContent = `${this.value.length}/150`;
+            if (this.value.length > 150) {
+                charCounter.classList.add('text-danger');
+            } else {
+                charCounter.classList.remove('text-danger');
+            }
+        });
+    }
+</script>
+{% endblock %}

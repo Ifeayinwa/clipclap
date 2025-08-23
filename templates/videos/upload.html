@@ -1,0 +1,427 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+{% load static %}
+
+{% block title %}Upload Video | ClipClap{% endblock %}
+
+{% block content %}
+<div class="upload-container">
+    <div class="upload-card">
+        <div class="card-header">
+            <h2><i class="fas fa-cloud-upload-alt me-2"></i> Upload Your Video</h2>
+            <p class="mb-0">Share your content with the ClipClap community</p>
+        </div>
+        
+        <div class="card-body">
+            <form method="post" enctype="multipart/form-data" id="upload-form">
+                {% csrf_token %}
+                
+                <!-- Video Upload Section -->
+                <div class="upload-section">
+                    <div class="upload-preview">
+                        <div class="file-drop-area" id="drop-area">
+                            <div class="file-input-wrapper">
+                                <input type="file" id="id_video_file" name="video_file" accept="video/*" class="file-input">
+                                <label for="id_video_file" class="file-label">
+                                    <div class="upload-icon">
+                                        <i class="fas fa-video"></i>
+                                    </div>
+                                    <h4>Select video to upload</h4>
+                                    <p class="text-muted">or drag and drop video file</p>
+                                    <div class="file-requirements">
+                                        <small>MP4 or WebM • Up to 500MB • 720p or higher recommended</small>
+                                    </div>
+                                </label>
+                            </div>
+                        </div>
+                        <div class="video-preview" id="video-preview">
+                            <video id="preview-player" controls style="display:none;">
+                                <source src="" type="video/mp4">
+                                Your browser doesn't support HTML5 video tag.
+                            </video>
+                            <div class="preview-placeholder">
+                                <i class="fas fa-video"></i>
+                                <p>Video preview will appear here</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="progress-container" id="progress-container" style="display:none;">
+                        <div class="progress">
+                            <div class="progress-bar" id="upload-progress" role="progressbar" style="width: 0%"></div>
+                        </div>
+                        <small class="progress-text" id="progress-text">Uploading: 0%</small>
+                    </div>
+                </div>
+                
+                <!-- Video Details Section -->
+                <div class="details-section">
+                    <div class="form-group">
+                        {{ form.title|as_crispy_field }}
+                        <small class="text-muted">Make it catchy and descriptive (max 100 characters)</small>
+                    </div>
+                    
+                    <div class="form-group">
+                        {{ form.description|as_crispy_field }}
+                        <small class="text-muted">Tell viewers about your video (max 500 characters)</small>
+                    </div>
+                    
+                    <div class="form-group">
+                        {{ form.thumbnail|as_crispy_field }}
+                        <small class="text-muted">Select an eye-catching thumbnail (optional)</small>
+                    </div>
+                    
+                    <div class="form-group">
+                        {{ form.tags|as_crispy_field }}
+                        <small class="text-muted">Add relevant tags separated by commas (max 5 tags)</small>
+                    </div>
+                    
+                    <div class="form-group">
+                        {{ form.visibility|as_crispy_field }}
+                    </div>
+                </div>
+                
+                <div class="form-actions">
+                    <button type="reset" class="btn btn-outline-secondary">
+                        <i class="fas fa-times"></i> Cancel
+                    </button>
+                    <button type="submit" class="btn btn-primary" id="submit-btn" disabled>
+                        <i class="fas fa-cloud-upload-alt"></i> Upload Video
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<style>
+    /* Main Container */
+    .upload-container {
+        max-width: 900px;
+        margin: 2rem auto;
+        padding: 0 1rem;
+    }
+    
+    /* Card Styling */
+    .upload-card {
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
+        overflow: hidden;
+    }
+    
+    .card-header {
+        background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+        color: white;
+        padding: 1.5rem;
+    }
+    
+    .card-header h2 {
+        font-weight: 700;
+        margin-bottom: 0.5rem;
+        display: flex;
+        align-items: center;
+    }
+    
+    .card-header p {
+        opacity: 0.9;
+    }
+    
+    .card-body {
+        padding: 2rem;
+    }
+    
+    /* Upload Section */
+    .upload-section {
+        margin-bottom: 2rem;
+    }
+    
+    .upload-preview {
+        display: flex;
+        gap: 2rem;
+    }
+    
+    @media (max-width: 768px) {
+        .upload-preview {
+            flex-direction: column;
+        }
+    }
+    
+    .file-drop-area {
+        flex: 1;
+        border: 2px dashed #e0e0e0;
+        border-radius: 8px;
+        padding: 2rem;
+        text-align: center;
+        transition: all 0.3s ease;
+        position: relative;
+    }
+    
+    .file-drop-area.highlight {
+        border-color: #6366f1;
+        background-color: rgba(99, 102, 241, 0.05);
+    }
+    
+    .file-input-wrapper {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        height: 100%;
+    }
+    
+    .file-input {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        opacity: 0;
+        cursor: pointer;
+    }
+    
+    .upload-icon {
+        font-size: 3rem;
+        color: #6366f1;
+        margin-bottom: 1rem;
+    }
+    
+    .file-requirements {
+        margin-top: 1rem;
+        color: #757575;
+    }
+    
+    .video-preview {
+        flex: 1;
+        border-radius: 8px;
+        overflow: hidden;
+        background: #f5f5f5;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 200px;
+    }
+    
+    #preview-player {
+        width: 100%;
+        height: auto;
+        max-height: 300px;
+    }
+    
+    .preview-placeholder {
+        text-align: center;
+        color: #9e9e9e;
+    }
+    
+    .preview-placeholder i {
+        font-size: 3rem;
+        margin-bottom: 1rem;
+    }
+    
+    /* Progress Bar */
+    .progress-container {
+        margin-top: 1rem;
+    }
+    
+    .progress {
+        height: 8px;
+        border-radius: 4px;
+        background: #e0e0e0;
+        margin-bottom: 0.5rem;
+    }
+    
+    .progress-bar {
+        background: #6366f1;
+        transition: width 0.3s ease;
+    }
+    
+    .progress-text {
+        color: #6366f1;
+        font-weight: 500;
+    }
+    
+    /* Details Section */
+    .details-section {
+        margin-bottom: 2rem;
+    }
+    
+    /* Form Actions */
+    .form-actions {
+        display: flex;
+        justify-content: flex-end;
+        gap: 1rem;
+        margin-top: 2rem;
+        padding-top: 2rem;
+        border-top: 1px solid #e0e0e0;
+    }
+    
+    /* Crispy Forms Overrides */
+    .form-group label {
+        font-weight: 500;
+    }
+    
+    .form-control {
+        border-radius: 8px;
+        padding: 0.75rem 1rem;
+    }
+    
+    .form-control:focus {
+        border-color: #6366f1;
+        box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
+    }
+    
+    /* Responsive Adjustments */
+    @media (max-width: 576px) {
+        .card-header h2 {
+            font-size: 1.5rem;
+        }
+        
+        .card-body {
+            padding: 1.5rem;
+        }
+    }
+</style>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const dropArea = document.getElementById('drop-area');
+        const fileInput = document.getElementById('id_video_file');
+        const videoPreview = document.getElementById('video-preview');
+        const previewPlayer = document.getElementById('preview-player');
+        const previewPlaceholder = videoPreview.querySelector('.preview-placeholder');
+        const progressContainer = document.getElementById('progress-container');
+        const progressBar = document.getElementById('upload-progress');
+        const progressText = document.getElementById('progress-text');
+        const submitBtn = document.getElementById('submit-btn');
+        const uploadForm = document.getElementById('upload-form');
+        
+        // Prevent default drag behaviors
+        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+            dropArea.addEventListener(eventName, preventDefaults, false);
+        });
+        
+        function preventDefaults(e) {
+            e.preventDefault();
+            e.stopPropagation();
+        }
+        
+        // Highlight drop area when item is dragged over it
+        ['dragenter', 'dragover'].forEach(eventName => {
+            dropArea.addEventListener(eventName, highlight, false);
+        });
+        
+        ['dragleave', 'drop'].forEach(eventName => {
+            dropArea.addEventListener(eventName, unhighlight, false);
+        });
+        
+        function highlight() {
+            dropArea.classList.add('highlight');
+        }
+        
+        function unhighlight() {
+            dropArea.classList.remove('highlight');
+        }
+        
+        // Handle dropped files
+        dropArea.addEventListener('drop', handleDrop, false);
+        
+        function handleDrop(e) {
+            const dt = e.dataTransfer;
+            const files = dt.files;
+            handleFiles(files);
+        }
+        
+        // Handle selected files
+        fileInput.addEventListener('change', function() {
+            handleFiles(this.files);
+        });
+        
+        function handleFiles(files) {
+            if (files.length > 0) {
+                const file = files[0];
+                
+                // Check if file is a video
+                if (!file.type.match('video.*')) {
+                    alert('Please select a video file');
+                    return;
+                }
+                
+                // Check file size (500MB limit)
+                if (file.size > 500 * 1024 * 1024) {
+                    alert('File size exceeds 500MB limit');
+                    return;
+                }
+                
+                // Preview video
+                const videoURL = URL.createObjectURL(file);
+                previewPlayer.src = videoURL;
+                previewPlayer.style.display = 'block';
+                previewPlaceholder.style.display = 'none';
+                
+                // Enable submit button
+                submitBtn.disabled = false;
+            }
+        }
+        
+        // Form submission with progress tracking
+        uploadForm.addEventListener('submit', function(e) {
+            const formData = new FormData(uploadForm);
+            const xhr = new XMLHttpRequest();
+            
+            // Show progress bar
+            progressContainer.style.display = 'block';
+            
+            xhr.upload.addEventListener('progress', function(e) {
+                if (e.lengthComputable) {
+                    const percentComplete = (e.loaded / e.total) * 100;
+                    progressBar.style.width = percentComplete + '%';
+                    progressText.textContent = 'Uploading: ' + Math.round(percentComplete) + '%';
+                    
+                    if (percentComplete >= 100) {
+                        progressText.textContent = 'Processing video...';
+                    }
+                }
+            });
+            
+            xhr.open('POST', '', true);
+            xhr.send(formData);
+        });
+        
+        // Character counters
+        const titleField = document.getElementById('id_title');
+        const descriptionField = document.getElementById('id_description');
+        
+        if (titleField) {
+            const titleCounter = document.createElement('small');
+            titleCounter.className = 'text-muted float-end';
+            titleCounter.textContent = titleField.value.length + '/100';
+            titleField.parentNode.appendChild(titleCounter);
+            
+            titleField.addEventListener('input', function() {
+                titleCounter.textContent = this.value.length + '/100';
+                if (this.value.length > 100) {
+                    titleCounter.classList.add('text-danger');
+                } else {
+                    titleCounter.classList.remove('text-danger');
+                }
+            });
+        }
+        
+        if (descriptionField) {
+            const descCounter = document.createElement('small');
+            descCounter.className = 'text-muted float-end';
+            descCounter.textContent = descriptionField.value.length + '/500';
+            descriptionField.parentNode.appendChild(descCounter);
+            
+            descriptionField.addEventListener('input', function() {
+                descCounter.textContent = this.value.length + '/500';
+                if (this.value.length > 500) {
+                    descCounter.classList.add('text-danger');
+                } else {
+                    descCounter.classList.remove('text-danger');
+                }
+            });
+        }
+    });
+</script>
+{% endblock %}

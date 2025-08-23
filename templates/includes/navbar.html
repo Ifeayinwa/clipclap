@@ -1,0 +1,78 @@
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark shadow-sm fixed-top">
+    <div class="container">
+        <a class="navbar-brand d-flex align-items-center animate__animated animate__fadeInLeft" href="{% url 'core:home' %}">
+            <i class="fas fa-play-circle me-2 text-primary"></i>
+            <span class="fw-bold">ClipClap</span>
+        </a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-expanded="false">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav me-auto">
+                <li class="nav-item animate__animated animate__fadeInDown">
+                    <a class="nav-link" href="{% url 'core:home' %}">
+                        <i class="fas fa-home me-1"></i> Home
+                    </a>
+                </li>
+                {% if request.user.is_authenticated %}
+                <li class="nav-item animate__animated animate__fadeInDown">
+                    <a class="nav-link" href="{% url 'videos:upload' %}">
+                        <i class="fas fa-upload me-1"></i> Upload
+                    </a>
+                </li>
+               
+                {% endif %}
+            </ul>
+            
+            <form class="d-flex me-3 animate__animated animate__fadeInDown" action="{% url 'videos:search' %}" method="GET">
+                <div class="input-group">
+                    <input class="form-control border-end-0" type="search" name="q" placeholder="Search videos..." aria-label="Search">
+                    <button class="btn btn-primary" type="submit">
+                        <i class="fas fa-search"></i>
+                    </button>
+                </div>
+            </form>
+            
+            <ul class="navbar-nav">
+                {% if request.user.is_authenticated %}
+                <li class="nav-item dropdown animate__animated animate__fadeInRight">
+                    <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown">
+                        {% if request.user.profile_pic %}
+                            <img src="{{ request.user.profile_pic.url }}" alt="Profile" class="rounded-circle me-2" width="32" height="32">
+                        {% else %}
+                            <div class="rounded-circle bg-primary d-flex align-items-center justify-content-center me-2" style="width:32px; height:32px;">
+                                <span class="text-white fw-bold">{{ request.user.username|first|upper }}</span>
+                            </div>
+                        {% endif %}
+                        <span class="d-none d-lg-inline">{{ request.user.username }}</span>
+                    </a>
+                    <ul class="dropdown-menu dropdown-menu-end shadow animate__animated animate__fadeIn">
+                        <li><a class="dropdown-item" href="{% url 'users:profile' request.user.username %}">
+                            <i class="fas fa-user-circle me-2"></i>Profile
+                        </a></li>
+                        <li><a class="dropdown-item" href="{% url 'users:edit_profile' %}">
+                            <i class="fas fa-cog me-2"></i>Settings
+                        </a></li>
+                        
+                        <li><hr class="dropdown-divider"></li>
+                        <li><a class="dropdown-item text-danger" href="{% url 'users:logout' %}">
+                            <i class="fas fa-sign-out-alt me-2"></i>Logout
+                        </a></li>
+                    </ul>
+                </li>
+                {% else %}
+                <li class="nav-item animate__animated animate__fadeInRight">
+                    <a class="nav-link btn btn-outline-light me-2" href="{% url 'users:login' %}">
+                        <i class="fas fa-sign-in-alt me-1"></i> Login
+                    </a>
+                </li>
+                <li class="nav-item animate__animated animate__fadeInRight">
+                    <a class="nav-link btn btn-primary" href="{% url 'users:signup' %}">
+                        <i class="fas fa-user-plus me-1"></i> Sign Up
+                    </a>
+                </li>
+                {% endif %}
+            </ul>
+        </div>
+    </div>
+</nav>
