@@ -19,7 +19,7 @@ DEBUG = os.getenv('DEBUG') == 'True'  # Make sure DEBUG is set to 'True' or 'Fal
 
 # Allowed Hosts (add your domains/IPs here)
 ALLOWED_HOSTS = [
-    'clipclap-eagsdaaxh5ecaefq.westus-01.azurewebsites.net'
+    'clipclap-eagsdaaxh5ecaefq.westus-01.azurewebsites.net',
     'localhost',
     '127.0.0.1',
 ]
