@@ -58,7 +58,7 @@
                         <p>{{ video.description }}</p>
                         <div class="d-flex flex-wrap">
                             {% for tag in video.tags.all %}
-                            <a href="{% url 'tag' tag.slug %}" class="badge bg-secondary me-1 mb-1 text-decoration-none">#{{ tag.name }}</a>
+                            <a href="{% url 'videos:tag' tag.slug %}" class="badge bg-secondary me-1 mb-1 text-decoration-none">#{{ tag.name }}</a>
                             {% endfor %}
                         </div>
                     </div>
