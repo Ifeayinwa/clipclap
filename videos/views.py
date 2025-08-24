@@ -6,6 +6,7 @@ from .forms import VideoUploadForm
 from interactions.models import Like, View
 from django.db.models import Q
 from django.db.models import Count
+import traceback
 
 @login_required
 def upload_video(request):
@@ -20,7 +21,10 @@ def upload_video(request):
                 video = form.save(commit=False)
                 video.user = request.user  # Set the current user as the video's owner
                 video.save()  # Save the video record
-                form.save_m2m()  # Save many-to-many data (tags)
+                
+                # Save tags (many-to-many relationship)
+                tags = form.cleaned_data['tags']
+                video.tags.set(tags)
                 
                 # Display success message
                 messages.success(request, 'Video uploaded successfully!')
@@ -28,9 +32,18 @@ def upload_video(request):
                 # Redirect to the watch video page
                 return redirect('videos:watch', video_id=video.id)
             except Exception as e:
+                # Log the full error for debugging
+                error_traceback = traceback.format_exc()
+                print(f"Upload error: {error_traceback}")
+                
                 # In case of an error (e.g., storage issue), display error message
                 messages.error(request, f"An error occurred while uploading the video: {str(e)}")
                 return redirect('videos:upload')  # Redirect back to the upload page on error
+        else:
+            # Form is not valid, show errors
+            for field, errors in form.errors.items():
+                for error in errors:
+                    messages.error(request, f"{field}: {error}")
     else:
         form = VideoUploadForm()
     
@@ -92,14 +105,28 @@ def edit_video(request, video_id):
     Edit an existing video uploaded by the logged-in user.
     """
     video = get_object_or_404(Video, id=video_id, user=request.user)
+    
     if request.method == 'POST':
         form = VideoUploadForm(request.POST, request.FILES, instance=video)
         if form.is_valid():
-            form.save()
-            messages.success(request, 'Video updated successfully!')
-            return redirect('videos:watch', video_id=video.id)
+            try:
+                form.save()
+                # Update tags
+                tags = form.cleaned_data['tags']
+                video.tags.set(tags)
+                
+                messages.success(request, 'Video updated successfully!')
+                return redirect('videos:watch', video_id=video.id)
+            except Exception as e:
+                messages.error(request, f"An error occurred while updating the video: {str(e)}")
+        else:
+            for field, errors in form.errors.items():
+                for error in errors:
+                    messages.error(request, f"{field}: {error}")
     else:
-        form = VideoUploadForm(instance=video)
+        # Pre-populate tags field
+        initial_tags = ', '.join([tag.name for tag in video.tags.all()])
+        form = VideoUploadForm(instance=video, initial={'tags': initial_tags})
     
     return render(request, 'videos/edit.html', {'form': form, 'video': video})
 
@@ -110,9 +137,13 @@ def delete_video(request, video_id):
     """
     video = get_object_or_404(Video, id=video_id, user=request.user)
     if request.method == 'POST':
-        video.delete()
-        messages.success(request, 'Video deleted successfully!')
-        return redirect('profile', username=request.user.username)
+        try:
+            video.delete()
+            messages.success(request, 'Video deleted successfully!')
+            return redirect('profile', username=request.user.username)
+        except Exception as e:
+            messages.error(request, f"An error occurred while deleting the video: {str(e)}")
+            return redirect('videos:watch', video_id=video.id)
     
     return render(request, 'videos/delete.html', {'video': video})
 
@@ -151,3 +182,51 @@ def videos_by_tag(request, tag_slug):
     }
 
     return render(request, 'videos/tag.html', context)
+
+# Debug views
+def debug_storage(request):
+    """Debug view to check storage configuration"""
+    from storages.backends.azure_storage import AzureStorage
+    try:
+        storage = AzureStorage()
+        # Try to list files to check connection
+        files = storage.listdir('')
+        return render(request, 'videos/debug.html', {
+            'files': files,
+            'account_name': storage.account_name,
+            'container_name': storage.container_name,
+            'connection_success': True
+        })
+    except Exception as e:
+        return render(request, 'videos/debug.html', {
+            'error': str(e),
+            'connection_success': False
+        })
+
+@login_required
+def test_upload(request):
+    """Test view to check if upload works"""
+    if request.method == 'POST':
+        # Simple file upload test
+        from storages.backends.azure_storage import AzureStorage
+        storage = AzureStorage()
+        
+        test_file = request.FILES.get('test_file')
+        if test_file:
+            try:
+                filename = f"test_{request.user.id}_{test_file.name}"
+                saved_name = storage.save(filename, test_file)
+                url = storage.url(saved_name)
+                
+                return render(request, 'videos/test_upload.html', {
+                    'success': True,
+                    'filename': saved_name,
+                    'url': url
+                })
+            except Exception as e:
+                return render(request, 'videos/test_upload.html', {
+                    'success': False,
+                    'error': str(e)
+                })
+    
+    return render(request, 'videos/test_upload.html')
