@@ -2,7 +2,7 @@ from django.db import models
 from django.contrib.auth import get_user_model
 from django.utils.text import slugify
 import uuid
-
+from storages.backends.azure_storage import AzureStorage 
 User = get_user_model()
 
 class Video(models.Model):
