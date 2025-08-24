@@ -1,7 +1,7 @@
 from django import forms
 from .models import Video, Tag
 import os
-
+from django.utils.text import slugify
 class VideoUploadForm(forms.ModelForm):
     tags = forms.CharField(
         required=False,
