@@ -149,6 +149,7 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 # Security settings
 CSRF_COOKIE_SECURE = True
 SESSION_COOKIE_SECURE = True
+DEFAULT_FILE_STORAGE = 'storages.backends.azure_storage.AzureStorage'
 
 AZURE_STORAGE_ACCOUNT_NAME = 'clipclap'  
 AZURE_STORAGE_ACCOUNT_KEY = 'AFYDPBXtquagImz8dI+uvLiVXKBqQ6SBwIl0olTZbgYnTC9hLeHmNmpKfZZRMWhNmwlTrVTThr/w+AStg1m45w==' 
