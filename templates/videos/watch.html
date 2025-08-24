@@ -8,6 +8,7 @@
     <div class="col-md-8">
         <div class="card mb-4">
             <div class="card-body">
+                <!-- Video Playback -->
                 <video class="w-100" controls autoplay>
                     <source src="{{ video.video_file.url }}" type="video/mp4">
                     Your browser does not support the video tag.
@@ -20,11 +21,11 @@
                     </div>
                     <div class="d-flex">
                         <form action="{% url 'interactions:like_video' video.id %}" method="post" class="me-2">
-    {% csrf_token %}
-    <button type="submit" class="btn btn-{% if user_like and user_like.is_like %}danger{% else %}outline-danger{% endif %}">
-        <i class="fas fa-heart"></i> {{ video.like_count }}
-    </button>
-</form>
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-{% if user_like and user_like.is_like %}danger{% else %}outline-danger{% endif %}">
+                                <i class="fas fa-heart"></i> {{ video.like_count }}
+                            </button>
+                        </form>
                         {% if request.user == video.user %}
                         <div class="dropdown">
                             <button class="btn btn-outline-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown">
@@ -38,17 +39,18 @@
                         {% endif %}
                     </div>
                 </div>
-                
+
+                <!-- Video Information and Creator Details -->
                 <div class="d-flex align-items-start mt-3">
                     <a href="{% url 'users:profile' video.user.username %}" class="creator-avatar neon-avatar">
-                    {% if video.user.profile_pic %}
+                        {% if video.user.profile_pic %}
                         <img src="{{ video.user.profile_pic.url }}" alt="{{ video.user.username }}" class="rounded-circle">
-                    {% else %}
+                        {% else %}
                         <div class="default-avatar">
                             {{ video.user.username|first|upper }}
                         </div>
-                    {% endif %}
-                </a>
+                        {% endif %}
+                    </a>
                     <div>
                         <a href="{% url 'users:profile' video.user.username %}" class="text-decoration-none">
                             <strong>{{ video.user.username }}</strong>
@@ -63,7 +65,8 @@
                 </div>
             </div>
         </div>
-        
+
+        <!-- Comments Section -->
         <div class="card mb-4">
             <div class="card-header">
                 <h5>{{ video.comment_count }} Comments</h5>
@@ -82,20 +85,20 @@
                     <a href="{% url 'users:login' %}">Login</a> to leave a comment
                 </p>
                 {% endif %}
-                
+
                 <div class="mt-4">
                     {% for comment in comments %}
                     <div class="mb-3">
                         <div class="d-flex">
-                           <a href="{% url 'users:profile' comment.user.username %}" class="comment-avatar neon-avatar">
-                        {% if comment.user.profile_pic %}
-                            <img src="{{ comment.user.profile_pic.url }}" alt="{{ comment.user.username }}" class="rounded-circle">
-                        {% else %}
-                            <div class="default-avatar">
-                                {{ comment.user.username|first|upper }}
-                            </div>
-                        {% endif %}
-                    </a>
+                            <a href="{% url 'users:profile' comment.user.username %}" class="comment-avatar neon-avatar">
+                                {% if comment.user.profile_pic %}
+                                    <img src="{{ comment.user.profile_pic.url }}" alt="{{ comment.user.username }}" class="rounded-circle">
+                                {% else %}
+                                    <div class="default-avatar">
+                                        {{ comment.user.username|first|upper }}
+                                    </div>
+                                {% endif %}
+                            </a>
                             <div class="flex-grow-1">
                                 <div class="d-flex justify-content-between">
                                     <div>
@@ -105,9 +108,8 @@
                                         <p class="mb-1">{{ comment.text }}</p>
                                         <small class="text-muted">{{ comment.created_at|timesince }} ago</small>
                                     </div>
-                                   
                                 </div>
-                                
+
                                 {% if request.user.is_authenticated %}
                                 <button class="btn btn-sm btn-outline-secondary mt-2" onclick="document.getElementById('reply-{{ comment.id }}').style.display='block'">
                                     Reply
@@ -126,7 +128,6 @@
                                 {% for reply in comment.replies.all %}
                                 <div class="ms-4 mt-3">
                                     <div class="d-flex">
-                                        
                                         <div class="flex-grow-1">
                                             <div class="d-flex justify-content-between">
                                                 <div>
@@ -136,7 +137,6 @@
                                                     <p class="mb-1">{{ reply.text }}</p>
                                                     <small class="text-muted">{{ reply.created_at|timesince }} ago</small>
                                                 </div>
-                                                
                                             </div>
                                         </div>
                                     </div>
@@ -153,6 +153,7 @@
         </div>
     </div>
     
+    <!-- Sidebar with Related and Recommended Videos -->
     <div class="col-md-4">
         <div class="card mb-4">
             <div class="card-header">
