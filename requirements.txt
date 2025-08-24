@@ -8,3 +8,4 @@ crispy-bootstrap5
 django-extensions
 pillow
 django-storages[azure]
+azure-storage-blob

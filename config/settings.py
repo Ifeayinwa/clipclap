@@ -8,7 +8,7 @@ load_dotenv()
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 SECRET_KEY = os.getenv('SECRET_KEY')
-DEBUG = os.getenv('DEBUG') == 'False'
+DEBUG = os.getenv('DEBUG') == 'True'
 
 ALLOWED_HOSTS = ['*']
 
@@ -29,7 +29,6 @@ INSTALLED_APPS = [
     'videos.apps.VideosConfig',
     'django_extensions',
     'interactions.apps.InteractionsConfig',
-    'storages'
 ]
 
 MIDDLEWARE = [
@@ -66,17 +65,13 @@ WSGI_APPLICATION = 'config.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'postgres', 
-        'USER': 'israel',        
-        'PASSWORD': 'Nine1122',
-        'HOST': 'clipclap-postgres.postgres.database.azure.com',  
-        'PORT': '5432',        
-        'OPTIONS': {
-            'sslmode': 'require',  # Ensure SSL is used for the connection
-        },
+        'NAME': os.getenv('DB_NAME'),
+        'USER': os.getenv('DB_USER'),
+        'PASSWORD': os.getenv('DB_PASSWORD'),
+        'HOST': os.getenv('DB_HOST'),
+        'PORT': os.getenv('DB_PORT'),
     }
 }
-
 
 # Password validation
 AUTH_PASSWORD_VALIDATORS = [

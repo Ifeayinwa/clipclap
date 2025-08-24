@@ -1,8 +1,8 @@
-<nav class="navbar navbar-expand-lg navbar-dark bg-dark shadow-sm fixed-top">
+<nav class="navbar navbar-expand-lg navbar-dark shadow-sm fixed-top" style="background-color: #1A202C;">
     <div class="container">
         <a class="navbar-brand d-flex align-items-center animate__animated animate__fadeInLeft" href="{% url 'core:home' %}">
-            <i class="fas fa-play-circle me-2 text-primary"></i>
-            <span class="fw-bold">ClipClap</span>
+            
+            <span class="fw-bold" style="color: #ffffff;">Clipclap</span>
         </a>
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-expanded="false">
             <span class="navbar-toggler-icon"></span>
@@ -10,24 +10,23 @@
         <div class="collapse navbar-collapse" id="navbarNav">
             <ul class="navbar-nav me-auto">
                 <li class="nav-item animate__animated animate__fadeInDown">
-                    <a class="nav-link" href="{% url 'core:home' %}">
-                        <i class="fas fa-home me-1"></i> Home
+                    <a class="nav-link" href="{% url 'core:home' %}" style="color: #EDF2F7;">
+                        <i class="fas fa-home me-1" style="color: #ffffff;"></i> Home
                     </a>
                 </li>
                 {% if request.user.is_authenticated %}
                 <li class="nav-item animate__animated animate__fadeInDown">
-                    <a class="nav-link" href="{% url 'videos:upload' %}">
-                        <i class="fas fa-upload me-1"></i> Upload
+                    <a class="nav-link" href="{% url 'videos:upload' %}" style="color: #EDF2F7;">
+                        <i class="fas fa-upload me-1" style="color: #FFD700;"></i> Upload
                     </a>
                 </li>
-               
                 {% endif %}
             </ul>
             
             <form class="d-flex me-3 animate__animated animate__fadeInDown" action="{% url 'videos:search' %}" method="GET">
                 <div class="input-group">
-                    <input class="form-control border-end-0" type="search" name="q" placeholder="Search videos..." aria-label="Search">
-                    <button class="btn btn-primary" type="submit">
+                    <input class="form-control border-end-0" type="search" name="q" placeholder="Search videos..." aria-label="Search" style="background-color: #2D3748; color: #EDF2F7; border-color: #4A5568;">
+                    <button class="btn" type="submit" style="background-color: #FFD700; color: #1A202C;">
                         <i class="fas fa-search"></i>
                     </button>
                 </div>
@@ -36,25 +35,25 @@
             <ul class="navbar-nav">
                 {% if request.user.is_authenticated %}
                 <li class="nav-item dropdown animate__animated animate__fadeInRight">
-                    <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown">
+                    <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" style="color: #EDF2F7;">
                         {% if request.user.profile_pic %}
-                            <img src="{{ request.user.profile_pic.url }}" alt="Profile" class="rounded-circle me-2" width="32" height="32">
+                            <img src="{{ request.user.profile_pic.url }}" alt="Profile" class="rounded-circle me-2" width="32" height="32" style="border: 2px solid #FFD700;">
                         {% else %}
-                            <div class="rounded-circle bg-primary d-flex align-items-center justify-content-center me-2" style="width:32px; height:32px;">
-                                <span class="text-white fw-bold">{{ request.user.username|first|upper }}</span>
+                            <div class="rounded-circle d-flex align-items-center justify-content-center me-2" style="width:32px; height:32px; background-color: #FFD700;">
+                                <span class="fw-bold" style="color: #1A202C;">{{ request.user.username|first|upper }}</span>
                             </div>
                         {% endif %}
                         <span class="d-none d-lg-inline">{{ request.user.username }}</span>
                     </a>
-                    <ul class="dropdown-menu dropdown-menu-end shadow animate__animated animate__fadeIn">
-                        <li><a class="dropdown-item" href="{% url 'users:profile' request.user.username %}">
-                            <i class="fas fa-user-circle me-2"></i>Profile
+                    <ul class="dropdown-menu dropdown-menu-end shadow animate__animated animate__fadeIn" style="background-color: #fcfcfc; border-color: #4A5568;">
+                        <li><a class="dropdown-item" href="{% url 'users:profile' request.user.username %}" style="color: #EDF2F7;">
+                            <i class="fas fa-user-circle me-2" style="color: #FFD700;"></i>Profile
                         </a></li>
-                        <li><a class="dropdown-item" href="{% url 'users:edit_profile' %}">
-                            <i class="fas fa-cog me-2"></i>Settings
+                        <li><a class="dropdown-item" href="{% url 'users:edit_profile' %}" style="color: #EDF2F7;">
+                            <i class="fas fa-cog me-2" style="color: #FFD700;"></i>Settings
                         </a></li>
                         
-                        <li><hr class="dropdown-divider"></li>
+                        <li><hr class="dropdown-divider" style="border-color: #4A5568;"></li>
                         <li><a class="dropdown-item text-danger" href="{% url 'users:logout' %}">
                             <i class="fas fa-sign-out-alt me-2"></i>Logout
                         </a></li>
@@ -62,12 +61,12 @@
                 </li>
                 {% else %}
                 <li class="nav-item animate__animated animate__fadeInRight">
-                    <a class="nav-link btn btn-outline-light me-2" href="{% url 'users:login' %}">
+                    <a class="nav-link btn me-2" href="{% url 'users:login' %}" style="background-color: transparent; border: 1px solid #FFD700; color: #FFD700;">
                         <i class="fas fa-sign-in-alt me-1"></i> Login
                     </a>
                 </li>
                 <li class="nav-item animate__animated animate__fadeInRight">
-                    <a class="nav-link btn btn-primary" href="{% url 'users:signup' %}">
+                    <a class="nav-link btn" href="{% url 'users:signup' %}" style="background-color: #FFD700; color: #1A202C;">
                         <i class="fas fa-user-plus me-1"></i> Sign Up
                     </a>
                 </li>
@@ -76,3 +75,24 @@
         </div>
     </div>
 </nav>
+
+
+<script>
+    // Add scroll effect to navbar
+    window.addEventListener('scroll', function() {
+        const navbar = document.querySelector('.navbar');
+        if (window.scrollY > 50) {
+            navbar.classList.add('scrolled');
+        } else {
+            navbar.classList.remove('scrolled');
+        }
+    });
+    
+    // Initialize tooltips
+    document.addEventListener('DOMContentLoaded', function() {
+        const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+        tooltipTriggerList.map(function (tooltipTriggerEl) {
+            return new bootstrap.Tooltip(tooltipTriggerEl);
+        });
+    });
+</script>

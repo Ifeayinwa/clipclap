@@ -1,74 +1,46 @@
 {% extends 'base.html' %}
 {% load static %}
 
-{% block title %}{{ video.title }} | ClipClap{% endblock %}
+{% block title %}{{ video.title }}{% endblock %}
 
 {% block content %}
-<div class="video-page-container">
-    <div class="video-main-content">
-        <!-- Video Player Section -->
-        <div class="video-player-container">
-            <div class="video-wrapper">
-                <video id="main-video" class="w-100" controls autoplay playsinline>
+<div class="row">
+    <div class="col-md-8">
+        <div class="card mb-4">
+            <div class="card-body">
+                <video class="w-100" controls autoplay>
                     <source src="{{ video.video_file.url }}" type="video/mp4">
                     Your browser does not support the video tag.
                 </video>
-                <div class="video-controls-overlay">
-                    <button class="btn btn-control play-pause-btn">
-                        <i class="fas fa-play"></i>
-                    </button>
-                    <div class="video-progress-container">
-                        <div class="video-progress-bar"></div>
+                
+                <div class="d-flex justify-content-between align-items-center mt-3">
+                    <div>
+                        <h4>{{ video.title }}</h4>
+                        <p class="text-muted">{{ video.views.count }} views • {{ video.created_at|timesince }} ago</p>
                     </div>
-                    <div class="video-time-display">
-                        <span class="current-time">0:00</span> / <span class="duration">0:00</span>
-                    </div>
-                    <button class="btn btn-control fullscreen-btn">
-                        <i class="fas fa-expand"></i>
-                    </button>
-                </div>
-            </div>
-            
-            <!-- Video Info Section -->
-            <div class="video-info-section">
-                <div class="video-title-section">
-                    <h1 class="video-title">{{ video.title }}</h1>
-                    <div class="video-stats">
-                        <span class="views-count">{{ video.views.count }} views</span>
-                        <span class="upload-date">{{ video.created_at|timesince }} ago</span>
+                    <div class="d-flex">
+                        <form action="{% url 'interactions:like_video' video.id %}" method="post" class="me-2">
+    {% csrf_token %}
+    <button type="submit" class="btn btn-{% if user_like and user_like.is_like %}danger{% else %}outline-danger{% endif %}">
+        <i class="fas fa-heart"></i> {{ video.like_count }}
+    </button>
+</form>
+                        {% if request.user == video.user %}
+                        <div class="dropdown">
+                            <button class="btn btn-outline-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown">
+                                <i class="fas fa-ellipsis-v"></i>
+                            </button>
+                            <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                                <li><a class="dropdown-item" href="{% url 'videos:edit' video.id %}">Edit</a></li>
+                                <li><a class="dropdown-item" href="{% url 'videos:delete' video.id %}">Delete</a></li>
+                            </ul>
+                        </div>
+                        {% endif %}
                     </div>
                 </div>
                 
-                <div class="video-actions">
-                    <form action="{% url 'interactions:like_video' video.id %}" method="post" class="like-form">
-                        {% csrf_token %}
-                        <button type="submit" class="btn btn-like {% if user_like and user_like.is_like %}liked{% endif %}">
-                            <i class="fas fa-heart"></i>
-                            <span class="like-count">{{ video.like_count }}</span>
-                        </button>
-                    </form>
-                    
-                    <button class="btn btn-share" data-bs-toggle="modal" data-bs-target="#shareModal">
-                        <i class="fas fa-share"></i> Share
-                    </button>
-                    
-                    {% if request.user == video.user %}
-                    <div class="dropdown video-options">
-                        <button class="btn btn-options dropdown-toggle" type="button" id="videoOptionsDropdown" data-bs-toggle="dropdown">
-                            <i class="fas fa-ellipsis-v"></i>
-                        </button>
-                        <ul class="dropdown-menu dropdown-menu-end">
-                            <li><a class="dropdown-item" href="{% url 'videos:edit' video.id %}"><i class="fas fa-edit me-2"></i>Edit</a></li>
-                            <li><a class="dropdown-item text-danger" href="{% url 'videos:delete' video.id %}"><i class="fas fa-trash me-2"></i>Delete</a></li>
-                        </ul>
-                    </div>
-                    {% endif %}
-                </div>
-            </div>
-            
-            <!-- Creator Info Section -->
-            <div class="creator-info-section">
-                <a href="{% url 'users:profile' video.user.username %}" class="creator-avatar">
+                <div class="d-flex align-items-start mt-3">
+                    <a href="{% url 'users:profile' video.user.username %}" class="creator-avatar neon-avatar">
                     {% if video.user.profile_pic %}
                         <img src="{{ video.user.profile_pic.url }}" alt="{{ video.user.username }}" class="rounded-circle">
                     {% else %}
@@ -77,82 +49,45 @@
                         </div>
                     {% endif %}
                 </a>
-                <div class="creator-details">
-                    <a href="{% url 'users:profile' video.user.username %}" class="creator-username">
-                        {{ video.user.username }}
-                    </a>
-                    {% if video.user.user_type == 'creator' %}
-                    <span class="badge creator-badge">Creator</span>
-                    {% endif %}
-                    <p class="creator-subscribers">{{ video.user.follower_count }} subscribers</p>
-                </div>
-                {% if request.user != video.user %}
-                <form action="{% url 'users:follow_user' video.user.username %}" method="post" class="subscribe-form">
-                    {% csrf_token %}
-                    <button type="submit" class="btn btn-subscribe {% if is_following %}subscribed{% endif %}">
-                        {% if is_following %}Subscribed{% else %}Subscribe{% endif %}
-                    </button>
-                </form>
-                {% endif %}
-            </div>
-            
-            <!-- Video Description -->
-            <div class="video-description">
-                <div class="description-text">
-                    {{ video.description }}
-                </div>
-                <div class="video-tags">
-                    {% for tag in video.tags.all %}
-                    <a href="{% url 'videos:tag' tag.slug %}" class="tag">#{{ tag.name }}</a>
-                    {% endfor %}
+                    <div>
+                        <a href="{% url 'users:profile' video.user.username %}" class="text-decoration-none">
+                            <strong>{{ video.user.username }}</strong>
+                        </a>
+                        <p>{{ video.description }}</p>
+                        <div class="d-flex flex-wrap">
+                            {% for tag in video.tags.all %}
+                            <a href="{% url 'tag' tag.slug %}" class="badge bg-secondary me-1 mb-1 text-decoration-none">#{{ tag.name }}</a>
+                            {% endfor %}
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
         
-        <!-- Comments Section -->
-        <div class="comments-section">
-            <div class="comments-header">
-                <h3>{{ video.comment_count }} Comments</h3>
-                <div class="sort-options">
-                    <button class="btn btn-sort active">Top Comments</button>
-                    <button class="btn btn-sort">Newest First</button>
-                </div>
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5>{{ video.comment_count }} Comments</h5>
             </div>
-            
-            <!-- Add Comment Form -->
-            {% if request.user.is_authenticated %}
-            <form method="post" action="{% url 'interactions:add_comment' video.id %}" class="add-comment-form">
-                {% csrf_token %}
-                <div class="comment-input-container">
-                    <div class="comment-avatar">
-                        {% if request.user.profile_pic %}
-                            <img src="{{ request.user.profile_pic.url }}" alt="{{ request.user.username }}" class="rounded-circle">
-                        {% else %}
-                            <div class="default-avatar">
-                                {{ request.user.username|first|upper }}
-                            </div>
-                        {% endif %}
+            <div class="card-body">
+                {% if request.user.is_authenticated %}
+                <form method="post" action="{% url 'interactions:add_comment' video.id %}">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <textarea class="form-control" name="text" rows="3" placeholder="Add a comment..."></textarea>
                     </div>
-                    <div class="comment-input-wrapper">
-                        <textarea name="text" placeholder="Add a comment..." class="comment-input"></textarea>
-                        <div class="comment-buttons">
-                            <button type="button" class="btn btn-cancel">Cancel</button>
-                            <button type="submit" class="btn btn-comment">Comment</button>
-                        </div>
-                    </div>
-                </div>
-            </form>
-            {% else %}
-            <div class="login-prompt">
-                <a href="{% url 'users:login' %}">Login</a> to leave a comment
-            </div>
-            {% endif %}
-            
-            <!-- Comments List -->
-            <div class="comments-list">
-                {% for comment in comments %}
-                <div class="comment-item">
-                    <a href="{% url 'users:profile' comment.user.username %}" class="comment-avatar">
+                    <button type="submit" class="btn btn-primary">Post Comment</button>
+                </form>
+                {% else %}
+                <p class="text-center">
+                    <a href="{% url 'users:login' %}">Login</a> to leave a comment
+                </p>
+                {% endif %}
+                
+                <div class="mt-4">
+                    {% for comment in comments %}
+                    <div class="mb-3">
+                        <div class="d-flex">
+                           <a href="{% url 'users:profile' comment.user.username %}" class="comment-avatar neon-avatar">
                         {% if comment.user.profile_pic %}
                             <img src="{{ comment.user.profile_pic.url }}" alt="{{ comment.user.username }}" class="rounded-circle">
                         {% else %}
@@ -161,973 +96,149 @@
                             </div>
                         {% endif %}
                     </a>
-                    <div class="comment-content">
-                        <div class="comment-header">
-                            <a href="{% url 'users:profile' comment.user.username %}" class="comment-username">
-                                {{ comment.user.username }}
-                            </a>
-                            <span class="comment-time">{{ comment.created_at|timesince }} ago</span>
-                        </div>
-                        <div class="comment-text">
-                            {{ comment.text }}
-                        </div>
-                        <div class="comment-actions">
-                            <button class="btn btn-like-comment">
-                                <i class="fas fa-thumbs-up"></i> 12
-                            </button>
-                            <button class="btn btn-reply" data-comment-id="{{ comment.id }}">
-                                Reply
-                            </button>
-                            {% if request.user == comment.user %}
-                            <form method="post" action="{% url 'interactions:delete_comment' comment.id %}" class="delete-comment-form">
-                                {% csrf_token %}
-                                <button type="submit" class="btn btn-delete-comment">
-                                    <i class="fas fa-trash"></i>
-                                </button>
-                            </form>
-                            {% endif %}
-                        </div>
-                        
-                        <!-- Replies Section -->
-                        {% if comment.replies.all %}
-                        <div class="replies-container">
-                            {% for reply in comment.replies.all %}
-                            <div class="reply-item">
-                                <a href="{% url 'users:profile' reply.user.username %}" class="reply-avatar">
-                                    {% if reply.user.profile_pic %}
-                                        <img src="{{ reply.user.profile_pic.url }}" alt="{{ reply.user.username }}" class="rounded-circle">
-                                    {% else %}
-                                        <div class="default-avatar">
-                                            {{ reply.user.username|first|upper }}
-                                        </div>
-                                    {% endif %}
-                                </a>
-                                <div class="reply-content">
-                                    <div class="reply-header">
-                                        <a href="{% url 'users:profile' reply.user.username %}" class="reply-username">
-                                            {{ reply.user.username }}
+                            <div class="flex-grow-1">
+                                <div class="d-flex justify-content-between">
+                                    <div>
+                                        <a href="{% url 'users:profile' comment.user.username %}" class="text-decoration-none">
+                                            <strong>{{ comment.user.username }}</strong>
                                         </a>
-                                        <span class="reply-time">{{ reply.created_at|timesince }} ago</span>
+                                        <p class="mb-1">{{ comment.text }}</p>
+                                        <small class="text-muted">{{ comment.created_at|timesince }} ago</small>
                                     </div>
-                                    <div class="reply-text">
-                                        {{ reply.text }}
-                                    </div>
-                                    <div class="reply-actions">
-                                        <button class="btn btn-like-reply">
-                                            <i class="fas fa-thumbs-up"></i> 5
-                                        </button>
-                                        {% if request.user == reply.user %}
-                                        <form method="post" action="{% url 'interactions:delete_comment' reply.id %}" class="delete-reply-form">
-                                            {% csrf_token %}
-                                            <button type="submit" class="btn btn-delete-reply">
-                                                <i class="fas fa-trash"></i>
-                                            </button>
-                                        </form>
-                                        {% endif %}
-                                    </div>
+                                   
                                 </div>
-                            </div>
-                            {% endfor %}
-                        </div>
-                        {% endif %}
-                        
-                        <!-- Reply Form (Hidden by default) -->
-                        {% if request.user.is_authenticated %}
-                        <form method="post" action="{% url 'interactions:add_comment' video.id %}" class="reply-form" id="reply-form-{{ comment.id }}" style="display: none;">
-                            {% csrf_token %}
-                            <input type="hidden" name="parent_id" value="{{ comment.id }}">
-                            <div class="reply-input-container">
-                                <div class="reply-avatar">
-                                    {% if request.user.profile_pic %}
-                                        <img src="{{ request.user.profile_pic.url }}" alt="{{ request.user.username }}" class="rounded-circle">
-                                    {% else %}
-                                        <div class="default-avatar">
-                                            {{ request.user.username|first|upper }}
+                                
+                                {% if request.user.is_authenticated %}
+                                <button class="btn btn-sm btn-outline-secondary mt-2" onclick="document.getElementById('reply-{{ comment.id }}').style.display='block'">
+                                    Reply
+                                </button>
+                                <form id="reply-{{ comment.id }}" method="post" action="{% url 'interactions:add_comment' video.id %}" style="display: none;" class="mt-2">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="parent_id" value="{{ comment.id }}">
+                                    <div class="mb-2">
+                                        <textarea class="form-control" name="text" rows="2" placeholder="Write a reply..."></textarea>
+                                    </div>
+                                    <button type="submit" class="btn btn-sm btn-primary">Post Reply</button>
+                                    <button type="button" class="btn btn-sm btn-outline-secondary" onclick="document.getElementById('reply-{{ comment.id }}').style.display='none'">Cancel</button>
+                                </form>
+                                {% endif %}
+                                
+                                {% for reply in comment.replies.all %}
+                                <div class="ms-4 mt-3">
+                                    <div class="d-flex">
+                                        
+                                        <div class="flex-grow-1">
+                                            <div class="d-flex justify-content-between">
+                                                <div>
+                                                    <a href="{% url 'users:profile' reply.user.username %}" class="text-decoration-none">
+                                                        <strong>{{ reply.user.username }}</strong>
+                                                    </a>
+                                                    <p class="mb-1">{{ reply.text }}</p>
+                                                    <small class="text-muted">{{ reply.created_at|timesince }} ago</small>
+                                                </div>
+                                                
+                                            </div>
                                         </div>
-                                    {% endif %}
-                                </div>
-                                <div class="reply-input-wrapper">
-                                    <textarea name="text" placeholder="Write a reply..." class="reply-input"></textarea>
-                                    <div class="reply-buttons">
-                                        <button type="button" class="btn btn-cancel-reply" data-comment-id="{{ comment.id }}">Cancel</button>
-                                        <button type="submit" class="btn btn-post-reply">Reply</button>
                                     </div>
                                 </div>
+                                {% endfor %}
                             </div>
-                        </form>
-                        {% endif %}
+                        </div>
                     </div>
+                    {% empty %}
+                    <p class="text-center text-muted">No comments yet</p>
+                    {% endfor %}
                 </div>
-                {% empty %}
-                <div class="no-comments">
-                    <i class="fas fa-comment-slash"></i>
-                    <p>No comments yet</p>
-                </div>
-                {% endfor %}
             </div>
         </div>
     </div>
     
-    <!-- Sidebar with Related Videos -->
-    <div class="video-sidebar">
-        <div class="sidebar-section">
-            <h4 class="sidebar-title">More from {{ video.user.username }}</h4>
-            <div class="related-videos">
-                {% for related_video in video.user.videos.all|slice:":5" %}
-                    {% if related_video.id != video.id %}
-                    <a href="{% url 'videos:watch' related_video.id %}" class="related-video">
-                        <div class="video-thumbnail">
+    <div class="col-md-4">
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5>More from {{ video.user.username }}</h5>
+            </div>
+            <div class="card-body">
+                {% for related_video in related_videos %}
+                <div class="mb-3">
+                    <a href="{% url 'videos:watch' related_video.id %}">
+                        <div class="d-flex">
                             {% if related_video.thumbnail %}
-                                <img src="{{ related_video.thumbnail.url }}" alt="{{ related_video.title }}" class="thumbnail-img">
+                            <img src="{{ related_video.thumbnail.url }}" alt="{{ related_video.title }}" class="flex-shrink-0 me-2" width="120" height="80" style="object-fit: cover;">
                             {% else %}
-                                <div class="thumbnail-placeholder">
-                                    <i class="fas fa-video"></i>
-                                </div>
+                            <div class="flex-shrink-0 me-2 bg-secondary d-flex align-items-center justify-content-center" style="width: 120px; height: 80px;">
+                                <i class="fas fa-video text-white"></i>
+                            </div>
                             {% endif %}
-                            <span class="video-duration">2:45</span>
-                        </div>
-                        <div class="video-info">
-                            <h5 class="video-title">{{ related_video.title|truncatechars:50 }}</h5>
-                            <p class="video-author">{{ related_video.user.username }}</p>
-                            <p class="video-stats">{{ related_video.views.count }} views • {{ related_video.created_at|timesince }} ago</p>
+                            <div>
+                                <h6 class="mb-1">{{ related_video.title|truncatechars:30 }}</h6>
+                                <small class="text-muted">{{ related_video.views.count }} views</small>
+                                <br>
+                                <small class="text-muted">{{ related_video.created_at|timesince }} ago</small>
+                            </div>
                         </div>
                     </a>
-                    {% endif %}
-                {% empty %}
-                <div class="no-videos">
-                    <p>No other videos from this creator</p>
                 </div>
+                {% empty %}
+                <p class="text-muted">No other videos from this user</p>
                 {% endfor %}
             </div>
         </div>
         
-        <div class="sidebar-section">
-            <h4 class="sidebar-title">Recommended Videos</h4>
-            <div class="recommended-videos">
-                <!-- You would populate this with your recommendation algorithm -->
-                {% for rec_video in recommended_videos|slice:":5" %}
-                <a href="{% url 'videos:watch' rec_video.id %}" class="recommended-video">
-                    <div class="video-thumbnail">
-                        {% if rec_video.thumbnail %}
-                            <img src="{{ rec_video.thumbnail.url }}" alt="{{ rec_video.title }}" class="thumbnail-img">
-                        {% else %}
-                            <div class="thumbnail-placeholder">
-                                <i class="fas fa-video"></i>
+        <!-- Additional recommended videos section -->
+        <div class="card">
+            <div class="card-header">
+                <h5>Recommended Videos</h5>
+            </div>
+            <div class="card-body">
+                {% for recommended_video in recommended_videos %}
+                <div class="mb-3">
+                    <a href="{% url 'videos:watch' recommended_video.id %}">
+                        <div class="d-flex">
+                            {% if recommended_video.thumbnail %}
+                            <img src="{{ recommended_video.thumbnail.url }}" alt="{{ recommended_video.title }}" class="flex-shrink-0 me-2" width="120" height="80" style="object-fit: cover;">
+                            {% else %}
+                            <div class="flex-shrink-0 me-2 bg-secondary d-flex align-items-center justify-content-center" style="width: 120px; height: 80px;">
+                                <i class="fas fa-video text-white"></i>
                             </div>
-                        {% endif %}
-                        <span class="video-duration">3:22</span>
-                    </div>
-                    <div class="video-info">
-                        <h5 class="video-title">{{ rec_video.title|truncatechars:50 }}</h5>
-                        <p class="video-author">{{ rec_video.user.username }}</p>
-                        <p class="video-stats">{{ rec_video.views.count }} views • {{ rec_video.created_at|timesince }} ago</p>
-                    </div>
-                </a>
-                {% empty %}
-                <div class="no-videos">
-                    <p>No recommended videos</p>
+                            {% endif %}
+                            <div>
+                                <h6 class="mb-1">{{ recommended_video.title|truncatechars:30 }}</h6>
+                                <small class="text-muted">{{ recommended_video.user.username }}</small>
+                                <br>
+                                <small class="text-muted">{{ recommended_video.views.count }} views</small>
+                            </div>
+                        </div>
+                    </a>
                 </div>
+                {% empty %}
+                <p class="text-muted">No recommended videos</p>
                 {% endfor %}
             </div>
         </div>
     </div>
 </div>
+{% endblock %}
 
-<!-- Share Modal -->
-<div class="modal fade" id="shareModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">Share Video</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <div class="share-options">
-                    <button class="btn btn-share-option">
-                        <i class="fab fa-facebook"></i> Facebook
-                    </button>
-                    <button class="btn btn-share-option">
-                        <i class="fab fa-twitter"></i> Twitter
-                    </button>
-                    <button class="btn btn-share-option">
-                        <i class="fab fa-whatsapp"></i> WhatsApp
-                    </button>
-                    <button class="btn btn-share-option">
-                        <i class="fas fa-envelope"></i> Email
-                    </button>
-                </div>
-                <div class="share-link">
-                    <input type="text" value="{{ request.build_absolute_uri }}" class="form-control" id="shareLink" readonly>
-                    <button class="btn btn-copy" onclick="copyShareLink()">
-                        <i class="fas fa-copy"></i> Copy
-                    </button>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
-<style>
-    /* Main Layout */
-    .video-page-container {
-        display: flex;
-        max-width: 1400px;
-        margin: 0 auto;
-        padding: 20px;
-        gap: 24px;
-    }
-    
-    .video-main-content {
-        flex: 1;
-        min-width: 0;
-    }
-    
-    .video-sidebar {
-        width: 400px;
-        flex-shrink: 0;
-    }
-    
-    @media (max-width: 1200px) {
-        .video-page-container {
-            flex-direction: column;
-        }
-        
-        .video-sidebar {
-            width: 100%;
-        }
-    }
-    
-    /* Video Player */
-    .video-player-container {
-        background: #000;
-        border-radius: 12px;
-        overflow: hidden;
-        margin-bottom: 24px;
-    }
-    
-    .video-wrapper {
-        position: relative;
-        padding-top: 56.25%; /* 16:9 Aspect Ratio */
-    }
-    
-    #main-video {
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-    }
-    
-    .video-controls-overlay {
-        position: absolute;
-        bottom: 0;
-        left: 0;
-        right: 0;
-        background: linear-gradient(transparent, rgba(0,0,0,0.7));
-        padding: 15px;
-        display: flex;
-        align-items: center;
-        opacity: 0;
-        transition: opacity 0.3s ease;
-    }
-    
-    .video-wrapper:hover .video-controls-overlay {
-        opacity: 1;
-    }
-    
-    .video-progress-container {
-        flex: 1;
-        height: 5px;
-        background: rgba(255,255,255,0.2);
-        margin: 0 10px;
-        border-radius: 3px;
-        cursor: pointer;
-    }
-    
-    .video-progress-bar {
-        height: 100%;
-        background: #f00;
-        border-radius: 3px;
-        width: 0%;
-    }
-    
-    .btn-control {
-        color: white;
-        background: transparent;
-        border: none;
-        font-size: 16px;
-        padding: 5px 10px;
-    }
-    
-    /* Video Info Section */
-    .video-info-section {
-        padding: 16px;
-    }
-    
-    .video-title {
-        font-size: 20px;
-        font-weight: 600;
-        margin-bottom: 8px;
-    }
-    
-    .video-stats {
-        color: #606060;
-        font-size: 14px;
-        margin-bottom: 16px;
-    }
-    
-    .video-actions {
-        display: flex;
-        gap: 8px;
-        margin-bottom: 16px;
-    }
-    
-    .btn-like, .btn-share, .btn-options {
-        display: flex;
-        align-items: center;
-        gap: 6px;
-        padding: 8px 16px;
-        border-radius: 20px;
-        font-weight: 500;
-    }
-    
-    .btn-like {
-        background: #f8f8f8;
-    }
-    
-    .btn-like.liked {
-        background: rgba(255,0,0,0.1);
-        color: #f00;
-    }
-    
-    .btn-share {
-        background: #f8f8f8;
-    }
-    
-    .btn-options {
-        background: #f8f8f8;
-        padding: 8px;
-    }
-    
-    /* Creator Info Section */
-    .creator-info-section {
-        display: flex;
-        align-items: center;
-        gap: 16px;
-        padding: 16px;
-        border-top: 1px solid #e5e5e5;
-        border-bottom: 1px solid #e5e5e5;
-    }
-    
-    .creator-avatar {
-        width: 48px;
-        height: 48px;
-        border-radius: 50%;
-        overflow: hidden;
-        flex-shrink: 0;
-    }
-    
-    .creator-avatar img {
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-    }
-    
-    .default-avatar {
-        width: 100%;
-        height: 100%;
-        background: #6366f1;
-        color: white;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-weight: bold;
-    }
-    
-    .creator-details {
-        flex: 1;
-    }
-    
-    .creator-username {
-        font-weight: 600;
-        text-decoration: none;
-        color: inherit;
-    }
-    
-    .creator-badge {
-        background: rgba(99, 102, 241, 0.1);
-        color: #6366f1;
-        font-size: 12px;
-        padding: 2px 8px;
-        border-radius: 12px;
-        margin-left: 8px;
-    }
-    
-    .creator-subscribers {
-        color: #606060;
-        font-size: 13px;
-        margin: 4px 0 0;
-    }
-    
-    .btn-subscribe {
-        background: #f00;
-        color: white;
-        border: none;
-        border-radius: 20px;
-        padding: 8px 16px;
-        font-weight: 500;
-    }
-    
-    .btn-subscribe.subscribed {
-        background: #f8f8f8;
-        color: #606060;
-    }
-    
-    /* Video Description */
-    .video-description {
-        padding: 16px;
-    }
-    
-    .description-text {
-        white-space: pre-line;
-        margin-bottom: 12px;
-    }
-    
-    .video-tags {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 8px;
-    }
-    
-    .tag {
-        color: #065fd4;
-        text-decoration: none;
-        font-size: 14px;
-    }
-    
-    /* Comments Section */
-    .comments-section {
-        margin-top: 24px;
-    }
-    
-    .comments-header {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        margin-bottom: 24px;
-    }
-    
-    .sort-options {
-        display: flex;
-        gap: 8px;
-    }
-    
-    .btn-sort {
-        background: transparent;
-        border: none;
-        color: #606060;
-        font-size: 14px;
-        padding: 4px 8px;
-    }
-    
-    .btn-sort.active {
-        color: #065fd4;
-        font-weight: 500;
-    }
-    
-    /* Add Comment Form */
-    .add-comment-form {
-        margin-bottom: 24px;
-    }
-    
-    .comment-input-container {
-        display: flex;
-        gap: 16px;
-    }
-    
-    .comment-avatar {
-        width: 40px;
-        height: 40px;
-        border-radius: 50%;
-        overflow: hidden;
-        flex-shrink: 0;
-    }
-    
-    .comment-input-wrapper {
-        flex: 1;
-    }
-    
-    .comment-input {
-        width: 100%;
-        border: none;
-        border-bottom: 1px solid #e5e5e5;
-        padding: 8px 0;
-        resize: none;
-        min-height: 40px;
-    }
-    
-    .comment-input:focus {
-        outline: none;
-        border-bottom-color: #065fd4;
-    }
-    
-    .comment-buttons {
-        display: flex;
-        justify-content: flex-end;
-        gap: 8px;
-        margin-top: 8px;
-    }
-    
-    .btn-cancel {
-        background: transparent;
-        border: none;
-        color: #606060;
-    }
-    
-    .btn-comment {
-        background: #065fd4;
-        color: white;
-        border: none;
-        border-radius: 20px;
-        padding: 8px 16px;
-    }
-    
-    /* Comments List */
-    .comments-list {
-        display: flex;
-        flex-direction: column;
-        gap: 24px;
-    }
-    
-    .comment-item {
-        display: flex;
-        gap: 16px;
-    }
-    
-    .comment-content {
-        flex: 1;
-    }
-    
-    .comment-header {
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        margin-bottom: 4px;
-    }
-    
-    .comment-username {
-        font-weight: 600;
-        text-decoration: none;
-        color: inherit;
-    }
-    
-    .comment-time {
-        color: #606060;
-        font-size: 13px;
-    }
-    
-    .comment-text {
-        margin-bottom: 8px;
-    }
-    
-    .comment-actions {
-        display: flex;
-        gap: 16px;
-    }
-    
-    .btn-like-comment, .btn-reply {
-        background: transparent;
-        border: none;
-        color: #606060;
-        font-size: 13px;
-        display: flex;
-        align-items: center;
-        gap: 4px;
-    }
-    
-    .delete-comment-form {
-        margin-left: auto;
-    }
-    
-    .btn-delete-comment {
-        background: transparent;
-        border: none;
-        color: #606060;
-    }
-    
-    /* Replies */
-    .replies-container {
-        margin-top: 16px;
-        padding-left: 16px;
-        border-left: 2px solid #e5e5e5;
-    }
-    
-    .reply-item {
-        display: flex;
-        gap: 16px;
-        margin-top: 16px;
-    }
-    
-    .reply-avatar {
-        width: 32px;
-        height: 32px;
-        border-radius: 50%;
-        overflow: hidden;
-        flex-shrink: 0;
-    }
-    
-    .reply-content {
-        flex: 1;
-    }
-    
-    .reply-header {
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        margin-bottom: 4px;
-    }
-    
-    .reply-username {
-        font-weight: 600;
-        text-decoration: none;
-        color: inherit;
-        font-size: 14px;
-    }
-    
-    .reply-time {
-        color: #606060;
-        font-size: 12px;
-    }
-    
-    .reply-text {
-        font-size: 14px;
-        margin-bottom: 8px;
-    }
-    
-    .reply-actions {
-        display: flex;
-        gap: 16px;
-    }
-    
-    .btn-like-reply {
-        background: transparent;
-        border: none;
-        color: #606060;
-        font-size: 12px;
-        display: flex;
-        align-items: center;
-        gap: 4px;
-    }
-    
-    .delete-reply-form {
-        margin-left: auto;
-    }
-    
-    .btn-delete-reply {
-        background: transparent;
-        border: none;
-        color: #606060;
-        font-size: 12px;
-    }
-    
-    /* Reply Form */
-    .reply-form {
-        margin-top: 16px;
-    }
-    
-    .reply-input-container {
-        display: flex;
-        gap: 16px;
-    }
-    
-    .reply-input-wrapper {
-        flex: 1;
-    }
-    
-    .reply-input {
-        width: 100%;
-        border: none;
-        border-bottom: 1px solid #e5e5e5;
-        padding: 8px 0;
-        resize: none;
-        min-height: 40px;
-        font-size: 14px;
-    }
-    
-    .reply-input:focus {
-        outline: none;
-        border-bottom-color: #065fd4;
-    }
-    
-    .reply-buttons {
-        display: flex;
-        justify-content: flex-end;
-        gap: 8px;
-        margin-top: 8px;
-    }
-    
-    .btn-cancel-reply {
-        background: transparent;
-        border: none;
-        color: #606060;
-        font-size: 13px;
-    }
-    
-    .btn-post-reply {
-        background: #065fd4;
-        color: white;
-        border: none;
-        border-radius: 20px;
-        padding: 6px 12px;
-        font-size: 13px;
-    }
-    
-    /* No Comments */
-    .no-comments {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        padding: 40px 0;
-        color: #606060;
-    }
-    
-    .no-comments i {
-        font-size: 40px;
-        margin-bottom: 16px;
-    }
-    
-    /* Sidebar */
-    .sidebar-section {
-        margin-bottom: 24px;
-    }
-    
-    .sidebar-title {
-        font-size: 18px;
-        font-weight: 600;
-        margin-bottom: 16px;
-    }
-    
-    .related-videos, .recommended-videos {
-        display: flex;
-        flex-direction: column;
-        gap: 16px;
-    }
-    
-    .related-video, .recommended-video {
-        display: flex;
-        gap: 8px;
-        text-decoration: none;
-        color: inherit;
-    }
-    
-    .video-thumbnail {
-        position: relative;
-        width: 168px;
-        height: 94px;
-        flex-shrink: 0;
-        border-radius: 8px;
-        overflow: hidden;
-        background: #000;
-    }
-    
-    .thumbnail-img {
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-    }
-    
-    .thumbnail-placeholder {
-        width: 100%;
-        height: 100%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        color: white;
-        font-size: 24px;
-    }
-    
-    .video-duration {
-        position: absolute;
-        bottom: 4px;
-        right: 4px;
-        background: rgba(0,0,0,0.8);
-        color: white;
-        font-size: 12px;
-        padding: 2px 4px;
-        border-radius: 4px;
-    }
-    
-    .video-info {
-        flex: 1;
-    }
-    
-    .video-title {
-        font-size: 14px;
-        font-weight: 500;
-        margin-bottom: 4px;
-        display: -webkit-box;
-        -webkit-line-clamp: 2;
-        -webkit-box-orient: vertical;
-        overflow: hidden;
-    }
-    
-    .video-author, .video-stats {
-        font-size: 12px;
-        color: #606060;
-        margin-bottom: 4px;
-    }
-    
-    .no-videos {
-        color: #606060;
-        text-align: center;
-        padding: 20px 0;
-    }
-    
-    /* Share Modal */
-    .share-options {
-        display: grid;
-        grid-template-columns: repeat(2, 1fr);
-        gap: 12px;
-        margin-bottom: 20px;
-    }
-    
-    .btn-share-option {
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        padding: 10px;
-        border-radius: 8px;
-        border: 1px solid #e5e5e5;
-    }
-    
-    .share-link {
-        display: flex;
-        gap: 8px;
-    }
-    
-    .btn-copy {
-        background: #065fd4;
-        color: white;
-        border: none;
-        border-radius: 4px;
-        padding: 0 16px;
-    }
-</style>
-
+{% block scripts %}
 <script>
-    // Video Player Controls
-    document.addEventListener('DOMContentLoaded', function() {
-        const video = document.getElementById('main-video');
-        const playPauseBtn = document.querySelector('.play-pause-btn');
-        const progressBar = document.querySelector('.video-progress-bar');
-        const progressContainer = document.querySelector('.video-progress-container');
-        const timeDisplay = document.querySelector('.video-time-display');
-        const currentTimeDisplay = timeDisplay.querySelector('.current-time');
-        const durationDisplay = timeDisplay.querySelector('.duration');
-        const fullscreenBtn = document.querySelector('.fullscreen-btn');
-        
-        // Play/Pause toggle
-        playPauseBtn.addEventListener('click', function() {
-            if (video.paused) {
-                video.play();
-                this.innerHTML = '<i class="fas fa-pause"></i>';
+// Auto-play videos when they come into view
+document.addEventListener('DOMContentLoaded', function() {
+    const videos = document.querySelectorAll('video');
+    
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.play();
             } else {
-                video.pause();
-                this.innerHTML = '<i class="fas fa-play"></i>';
+                entry.target.pause();
             }
         });
-        
-        // Update progress bar
-        video.addEventListener('timeupdate', function() {
-            const percent = (video.currentTime / video.duration) * 100;
-            progressBar.style.width = `${percent}%`;
-            
-            // Update time display
-            currentTimeDisplay.textContent = formatTime(video.currentTime);
-            durationDisplay.textContent = formatTime(video.duration);
-        });
-        
-        // Click on progress bar to seek
-        progressContainer.addEventListener('click', function(e) {
-            const pos = (e.pageX - this.offsetLeft) / this.offsetWidth;
-            video.currentTime = pos * video.duration;
-        });
-        
-        // Fullscreen toggle
-        fullscreenBtn.addEventListener('click', function() {
-            if (!document.fullscreenElement) {
-                video.requestFullscreen().catch(err => {
-                    console.error(`Error attempting to enable fullscreen: ${err.message}`);
-                });
-            } else {
-                document.exitFullscreen();
-            }
-        });
-        
-        // Format time as MM:SS
-        function formatTime(seconds) {
-            const minutes = Math.floor(seconds / 60);
-            const secs = Math.floor(seconds % 60);
-            return `${minutes}:${secs < 10 ? '0' : ''}${secs}`;
-        }
-        
-        // Show duration when metadata is loaded
-        video.addEventListener('loadedmetadata', function() {
-            durationDisplay.textContent = formatTime(video.duration);
-        });
-        
-        // Reply button functionality
-        document.querySelectorAll('.btn-reply').forEach(btn => {
-            btn.addEventListener('click', function() {
-                const commentId = this.getAttribute('data-comment-id');
-                document.getElementById(`reply-form-${commentId}`).style.display = 'block';
-            });
-        });
-        
-        // Cancel reply button functionality
-        document.querySelectorAll('.btn-cancel-reply').forEach(btn => {
-            btn.addEventListener('click', function() {
-                const commentId = this.getAttribute('data-comment-id');
-                document.getElementById(`reply-form-${commentId}`).style.display = 'none';
-            });
-        });
-    });
+    }, { threshold: 0.5 });
     
-    // Copy share link
-    function copyShareLink() {
-        const shareLink = document.getElementById('shareLink');
-        shareLink.select();
-        shareLink.setSelectionRange(0, 99999);
-        document.execCommand('copy');
-        
-        // Show tooltip or notification
-        const copyBtn = document.querySelector('.btn-copy');
-        const originalText = copyBtn.innerHTML;
-        copyBtn.innerHTML = '<i class="fas fa-check"></i> Copied';
-        
-        setTimeout(() => {
-            copyBtn.innerHTML = originalText;
-        }, 2000);
-    }
-    
-    // Auto-play videos when they come into view (for sidebar videos)
-    document.addEventListener('DOMContentLoaded', function() {
-        const videos = document.querySelectorAll('.thumbnail-img');
-        
-        const observer = new IntersectionObserver((entries) => {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    entry.target.play();
-                } else {
-                    entry.target.pause();
-                }
-            });
-        }, { threshold: 0.5 });
-        
-        videos.forEach(video => {
-            observer.observe(video);
-        });
+    videos.forEach(video => {
+        observer.observe(video);
     });
+});
 </script>
 {% endblock %}
