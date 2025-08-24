@@ -10,7 +10,12 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = os.getenv('SECRET_KEY')
 DEBUG = os.getenv('DEBUG') == 'False'
 
-ALLOWED_HOSTS = ['*']
+# settings.py
+ALLOWED_HOSTS = [
+    'clipclapvideo-b5fdhhepgqevcsfn.westus-01.azurewebsites.net',
+    'localhost',
+    '127.0.0.1'
+]
 
 # Application definition
 INSTALLED_APPS = [
