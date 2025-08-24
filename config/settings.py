@@ -5,22 +5,22 @@ from django.core.exceptions import ImproperlyConfigured
 # Base directory for the project
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-# Secret Key (hard-coded value)
+# Secret Key
 SECRET_KEY = '76543210abcdefgh'  # Replace this with your actual secret key
 if not SECRET_KEY:
     raise ImproperlyConfigured('The SECRET_KEY setting must not be empty.')
 
-print("SECRET_KEY from .env:", SECRET_KEY)
+# Debug mode
+DEBUG = True  # Set to False in production
 
-# Debug mode (hard-coded value)
-DEBUG = False  # Change to True for development
-
-# CSRF trusted origins (for requests from your Azure web app)
+# CSRF trusted origins
 CSRF_TRUSTED_ORIGINS = [
     'https://clipclap-eagsdaaxh5ecaefq.westus-01.azurewebsites.net',
+    'http://localhost:8000',
+    'http://127.0.0.1:8000',
 ]
 
-# Allowed Hosts (hard-coded value)
+# Allowed Hosts
 ALLOWED_HOSTS = [
     'clipclap-eagsdaaxh5ecaefq.westus-01.azurewebsites.net',
     'localhost',
@@ -81,15 +81,15 @@ TEMPLATES = [
 # WSGI application configuration
 WSGI_APPLICATION = 'config.wsgi.application'
 
-# Database configuration (hard-coded values)
+# Database configuration
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'postgres',  # Database name
-        'USER': 'israel',  # Database username
-        'PASSWORD': 'Nine1122',  # Database password
-        'HOST': 'clipclap.postgres.database.azure.com',  # Database host
-        'PORT': '5432',  # Database port
+        'NAME': 'postgres',
+        'USER': 'israel',
+        'PASSWORD': 'Nine1122',
+        'HOST': 'clipclap.postgres.database.azure.com',
+        'PORT': '5432',
         'OPTIONS': {
             'sslmode': 'require',
         },
@@ -123,13 +123,19 @@ STATIC_URL = 'static/'
 STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
-# Media files (uploads) - Configuring Azure storage for media files
-AZURE_STORAGE_ACCOUNT_NAME = 'clipclap'  
-AZURE_STORAGE_ACCOUNT_KEY = 'AFYDPBXtquagImz8dI+uvLiVXKBqQ6SBwIl0olTZbgYnTC9hLeHmNmpKfZZRMWhNmwlTrVTThr/w+AStg1m45w=='  # Hard-code the account key here
-AZURE_STORAGE_CONTAINER_NAME = 'videos' 
+# Azure Storage Configuration
+AZURE_ACCOUNT_NAME = 'clipclap'
+AZURE_ACCOUNT_KEY = 'AFYDPBXtquagImz8dI+uvLiVXKBqQ6SBwIl0olTZbgYnTC9hLeHmNmpKfZZRMWhNmwlTrVTThr/w+AStg1m45w=='
+AZURE_CONTAINER = 'videos'
+AZURE_SSL = True
 
+# Azure Storage Settings
 DEFAULT_FILE_STORAGE = 'storages.backends.azure_storage.AzureStorage'
-AZURE_CUSTOM_DOMAIN = f'{AZURE_STORAGE_ACCOUNT_NAME}.blob.core.windows.net'
+AZURE_CONNECTION_STRING = f"DefaultEndpointsProtocol=https;AccountName={AZURE_ACCOUNT_NAME};AccountKey={AZURE_ACCOUNT_KEY};EndpointSuffix=core.windows.net"
+
+# File upload settings (increase for videos)
+DATA_UPLOAD_MAX_MEMORY_SIZE = 104857600  # 100MB
+FILE_UPLOAD_MAX_MEMORY_SIZE = 104857600  # 100MB
 
 # Custom user model
 AUTH_USER_MODEL = 'users.CustomUser'
@@ -146,11 +152,6 @@ CRISPY_TEMPLATE_PACK = 'bootstrap5'
 # Default primary key field type
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-# Security settings
-CSRF_COOKIE_SECURE = True
-SESSION_COOKIE_SECURE = True
-DEFAULT_FILE_STORAGE = 'storages.backends.azure_storage.AzureStorage'
-
-AZURE_STORAGE_ACCOUNT_NAME = 'clipclap'  
-AZURE_STORAGE_ACCOUNT_KEY = 'AFYDPBXtquagImz8dI+uvLiVXKBqQ6SBwIl0olTZbgYnTC9hLeHmNmpKfZZRMWhNmwlTrVTThr/w+AStg1m45w==' 
-AZURE_STORAGE_CONTAINER_NAME = 'videos'  
+# Security settings (set to True in production)
+CSRF_COOKIE_SECURE = False
+SESSION_COOKIE_SECURE = False
