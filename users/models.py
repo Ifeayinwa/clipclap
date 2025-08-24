@@ -2,6 +2,10 @@ from django.contrib.auth.models import AbstractUser
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 
+# Function for dynamic profile picture path
+def profile_pic_upload_path(instance, filename):
+    return f'profile_pics/{instance.id}/{filename}'
+
 class CustomUser(AbstractUser):
     # User types
     class UserType(models.TextChoices):
@@ -13,8 +17,9 @@ class CustomUser(AbstractUser):
         max_length=10,
         choices=UserType.choices,
         default=UserType.CONSUMER,
+        db_index=True  # Adding an index for faster query performance
     )
-    profile_pic = models.ImageField(upload_to='profile_pics/', blank=True, null=True)
+    profile_pic = models.ImageField(upload_to=profile_pic_upload_path, blank=True, null=True)
     bio = models.TextField(blank=True)
     followers = models.ManyToManyField('self', symmetrical=False, blank=True, related_name='following')
     website = models.URLField(blank=True)
