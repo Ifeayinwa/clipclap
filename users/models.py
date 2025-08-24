@@ -2,9 +2,10 @@ from django.contrib.auth.models import AbstractUser
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 
-# Function for dynamic profile picture path
+# Function for dynamic profile picture path (for Azure Blob Storage)
 def profile_pic_upload_path(instance, filename):
-    return f'profile_pics/{instance.id}/{filename}'
+    # Ensure it uses the same container for videos and profile pictures
+    return f'videos/profile_pics/{instance.id}/{filename}'
 
 class CustomUser(AbstractUser):
     # User types
