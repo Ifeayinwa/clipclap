@@ -1,23 +1,30 @@
 import os
 from pathlib import Path
 from dotenv import load_dotenv
+from django.core.exceptions import ImproperlyConfigured
 
+# Load environment variables from the .env file
 load_dotenv()
 
-# Build paths inside the project like this: BASE_DIR / 'subdir'.
+# Base directory for the project
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+# Secret Key (must be set in environment variables)
 SECRET_KEY = os.getenv('SECRET_KEY')
-DEBUG = os.getenv('DEBUG') == 'False'
+if not SECRET_KEY:
+    raise ImproperlyConfigured('The SECRET_KEY setting must not be empty.')
+print("SECRET_KEY from .env:", SECRET_KEY)
+# Debug mode (must be set in environment variables as 'True' or 'False')
+DEBUG = os.getenv('DEBUG') == 'True'  # Make sure DEBUG is set to 'True' or 'False' in your .env
 
-# settings.py
+# Allowed Hosts (add your domains/IPs here)
 ALLOWED_HOSTS = [
     'clipclapvideo-b5fdhhepgqevcsfn.westus-01.azurewebsites.net',
     'localhost',
-    '127.0.0.1'
+    '127.0.0.1',
 ]
 
-# Application definition
+# Installed apps
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
@@ -25,10 +32,10 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    # Third-party
+    # Third-party apps
     'crispy_forms',
     'crispy_bootstrap5',
-    # Local
+    # Local apps
     'core.apps.CoreConfig',
     'users.apps.UsersConfig',
     'videos.apps.VideosConfig',
@@ -36,6 +43,7 @@ INSTALLED_APPS = [
     'interactions.apps.InteractionsConfig',
 ]
 
+# Middleware configuration
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -46,8 +54,10 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
+# Root URL configuration
 ROOT_URLCONF = 'config.urls'
 
+# Templates configuration
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
@@ -64,9 +74,10 @@ TEMPLATES = [
     },
 ]
 
+# WSGI application configuration
 WSGI_APPLICATION = 'config.wsgi.application'
 
-# Database
+# Database configuration (using environment variables)
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
@@ -97,7 +108,7 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-# Internationalization
+# Internationalization settings
 LANGUAGE_CODE = 'en-us'
 TIME_ZONE = 'UTC'
 USE_I18N = True
@@ -108,21 +119,27 @@ STATIC_URL = 'static/'
 STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
-# Media files
+# Media files (uploads)
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 # Custom user model
 AUTH_USER_MODEL = 'users.CustomUser'
-LOGIN_URL = '/users/login/'
 
-# Login redirect
+# Login redirect URLs
+LOGIN_URL = '/users/login/'
 LOGIN_REDIRECT_URL = 'core:home'
 LOGOUT_REDIRECT_URL = 'core:home'
 
-# Crispy forms
+# Crispy forms configuration
 CRISPY_ALLOWED_TEMPLATE_PACKS = 'bootstrap5'
 CRISPY_TEMPLATE_PACK = 'bootstrap5'
 
 # Default primary key field type
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# Security settings
+SECURE_SSL_REDIRECT = True
+CSRF_COOKIE_SECURE = True
+SESSION_COOKIE_SECURE = True
+
