@@ -1,23 +1,26 @@
 import os
 from pathlib import Path
-from dotenv import load_dotenv
 from django.core.exceptions import ImproperlyConfigured
-
-# Load environment variables from the .env file
-load_dotenv()
 
 # Base directory for the project
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-# Secret Key (must be set in environment variables)
-SECRET_KEY = os.getenv('SECRET_KEY')
+# Secret Key (hard-coded value)
+SECRET_KEY = '76543210abcdefgh'  # Replace this with your actual secret key
 if not SECRET_KEY:
     raise ImproperlyConfigured('The SECRET_KEY setting must not be empty.')
-print("SECRET_KEY from .env:", SECRET_KEY)
-# Debug mode (must be set in environment variables as 'True' or 'False')
-DEBUG = os.getenv('DEBUG') == 'True'  # Make sure DEBUG is set to 'True' or 'False' in your .env
 
-# Allowed Hosts (add your domains/IPs here)
+print("SECRET_KEY from .env:", SECRET_KEY)
+
+# Debug mode (hard-coded value)
+DEBUG = False  # Change to True for development
+
+# CSRF trusted origins (for requests from your Azure web app)
+CSRF_TRUSTED_ORIGINS = [
+    'https://clipclap-eagsdaaxh5ecaefq.westus-01.azurewebsites.net',
+]
+
+# Allowed Hosts (hard-coded value)
 ALLOWED_HOSTS = [
     'clipclap-eagsdaaxh5ecaefq.westus-01.azurewebsites.net',
     'localhost',
@@ -41,6 +44,7 @@ INSTALLED_APPS = [
     'videos.apps.VideosConfig',
     'django_extensions',
     'interactions.apps.InteractionsConfig',
+    'storages',
 ]
 
 # Middleware configuration
@@ -77,15 +81,15 @@ TEMPLATES = [
 # WSGI application configuration
 WSGI_APPLICATION = 'config.wsgi.application'
 
-# Database configuration (using environment variables)
+# Database configuration (hard-coded values)
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': os.getenv('DB_NAME', 'postgres'),
-        'USER': os.getenv('DB_USER', 'israel'),
-        'PASSWORD': os.getenv('DB_PASSWORD', 'Nine1122'),
-        'HOST': os.getenv('DB_HOST', 'clipclap.postgres.database.azure.com'),
-        'PORT': os.getenv('DB_PORT', '5432'),
+        'NAME': 'postgres',  # Database name
+        'USER': 'israel',  # Database username
+        'PASSWORD': 'Nine1122',  # Database password
+        'HOST': 'clipclap.postgres.database.azure.com',  # Database host
+        'PORT': '5432',  # Database port
         'OPTIONS': {
             'sslmode': 'require',
         },
@@ -119,9 +123,13 @@ STATIC_URL = 'static/'
 STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
-# Media files (uploads)
-MEDIA_URL = '/media/'
-MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+# Media files (uploads) - Configuring Azure storage for media files
+AZURE_STORAGE_ACCOUNT_NAME = 'clipclap'  
+AZURE_STORAGE_ACCOUNT_KEY = 'AFYDPBXtquagImz8dI+uvLiVXKBqQ6SBwIl0olTZbgYnTC9hLeHmNmpKfZZRMWhNmwlTrVTThr/w+AStg1m45w=='  # Hard-code the account key here
+AZURE_STORAGE_CONTAINER_NAME = 'videos' 
+
+DEFAULT_FILE_STORAGE = 'storages.backends.azure_storage.AzureStorage'
+AZURE_CUSTOM_DOMAIN = f'{AZURE_STORAGE_ACCOUNT_NAME}.blob.core.windows.net'
 
 # Custom user model
 AUTH_USER_MODEL = 'users.CustomUser'
@@ -142,3 +150,6 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 CSRF_COOKIE_SECURE = True
 SESSION_COOKIE_SECURE = True
 
+AZURE_STORAGE_ACCOUNT_NAME = 'clipclap'  
+AZURE_STORAGE_ACCOUNT_KEY = 'AFYDPBXtquagImz8dI+uvLiVXKBqQ6SBwIl0olTZbgYnTC9hLeHmNmpKfZZRMWhNmwlTrVTThr/w+AStg1m45w==' 
+AZURE_STORAGE_CONTAINER_NAME = 'videos'  
