@@ -6,19 +6,7 @@ body {
 }
 
 /* Navbar styles */
-.navbar {
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    position: absolute;
-    color: black;
-    padding-bottom: 15px; /* Space below navbar */
-    margin-bottom: 20px; /* Extra space below navbar */
-}
 
-/* Navbar brand styles */
-.navbar-brand {
-    font-weight: bold;
-    font-size: 1.5rem;
-}
 
 /* Dropdown menu styles */
 .drop-down-menu {
