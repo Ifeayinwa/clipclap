@@ -8,7 +8,7 @@ body {
 /* Navbar styles */
 .navbar {
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    position: relative;
+    position: absolute;
     color: black;
     padding-bottom: 15px; /* Space below navbar */
     margin-bottom: 20px; /* Extra space below navbar */
