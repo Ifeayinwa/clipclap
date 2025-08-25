@@ -160,4 +160,3 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 # Security settings for production
 CSRF_COOKIE_SECURE = True
 SESSION_COOKIE_SECURE = True
-SECURE_SSL_REDIRECT = True  # Redirect HTTP to HTTPS
