@@ -2,6 +2,7 @@
 body {
     background-color: #f8f9fa;
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    padding-top: 20px; /* Adds space at the top of the body to prevent navbar overlap */
 }
 
 /* Navbar styles */
@@ -9,14 +10,21 @@ body {
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     position: relative;
     color: black;
+    padding-bottom: 15px; /* Space below navbar */
+    margin-bottom: 20px; /* Extra space below navbar */
 }
 
+/* Navbar brand styles */
 .navbar-brand {
     font-weight: bold;
     font-size: 1.5rem;
 }
+
+/* Dropdown menu styles */
 .drop-down-menu {
-color: #000;}
+    color: #000;
+}
+
 /* Card styles */
 .card {
     border: none;
@@ -98,8 +106,15 @@ video {
         height: 200px;
     }
 }
-img{
+
+/* Profile Image */
+img {
     width: 45px;
     height: 45px;
     border-radius: 50%;
+}
+
+/* Extra space below navbar for content */
+.container, .content-wrapper {
+    padding-top: 20px; /* Adds more space to the top of the content if needed */
 }
